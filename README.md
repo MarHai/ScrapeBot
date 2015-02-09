@@ -54,12 +54,19 @@ A single step can be one of the following (defined through `eType`, default, if 
 
 | Type | Description | Options |
 |------|-------------|---------|
-|eval  |call JavaScript function |`fEval`|
+|eval  |call public JavaScript function (see list below) |`fEval`|
 |fill  |fill form (field) |`sSel`, `oValue`, `bSubmit`|
 |log   |write into log file |`sText`|
 |open  |open URL |`sUrl`|
 |reload|reload current page |_none_|
 |shot  |screenshot current page |_none_|
+
+For eval, several public JavaScript functions are available. Currently, these include the following:
+* `extractResults` a generic function for extracting results from a CSS query yielding link tags (```A```)
+* `extractGoogleResults` the generic extraction function specified to Google
+* `extractDuckDuckGoResults` same for DuckDuckGo.com
+* `extractBingResults` same for Microsoft's Bing search
+* `extractTweets` extracts a list of Tweets including text, direct Tweet link, and author as out of Twitter's default stream
 
 For further configuration specification, have a look at the example config file incorporating all possible step types and options and take the first character of the options into account:
 * `a` = array
