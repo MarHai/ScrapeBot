@@ -42,7 +42,7 @@ Please note, that all configuration parameters (except for mandatory uid) may al
 ## Configuration
 Each configuration is a JSON file including an `aStep` array of the steps to do and an optional `oConfig` object with the parameters described above (within the _scrape.js_ section). `aStep` needs to have objects as array elements, each representing one step of action. These steps are run through in the given (array) order.
 
-A single step can be one of the following:
+A single step can be one of the following (defined through `eType`, default, if not set, is `open`):
 
 | Type | Description | Options |
 |------|-------------|---------|
@@ -53,4 +53,4 @@ A single step can be one of the following:
 |reload|reload current page |_none_|
 |shot  |screenshot current page |_none_|
 
-For further configuration specification, take the first character into account (`a` = array, `b` = boolean, `f` = function, `n` = numeric, `o` = object, `s` = string) and have a look at the example config file incorporating all possible step types and options.
+For further configuration specification, take the first character into account (`a` = array, `b` = boolean, `e` = enum, `f` = function, `n` = numeric, `o` = object, `s` = string) and have a look at the example config file incorporating all possible step types and options.
