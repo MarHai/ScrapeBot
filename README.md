@@ -8,7 +8,7 @@ First, you'll need [CasperJS](http://casperjs.org/). Now, [test it](http://docs.
 Clone (or download) the latest version of ScrapeBot:
 
 ```
-git clone https://github.com/MarHai/ScrapeBot.git
+git clone https://github.com/MarHai/ScrapeBot
 ```
 
 That's it, really. Set up a config file (or use the example one included) and test it.
