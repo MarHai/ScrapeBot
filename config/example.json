@@ -1,0 +1,56 @@
+{
+	"oConfig": {
+		"width": 1024,
+		"height": 768,
+		"dir.prefix": "./",
+		"timeout": 1500
+	},
+	"aStep": [
+		{
+			"eType": "log",
+			"sText": "searching Google & DuckDuckGo for 'germany'"
+		},
+		
+		
+		{
+			"eType": "open",
+			"sUrl": "http://www.google.com/"
+		},
+		{
+			"eType": "fill",
+			"sSel": "form[action=\"/search\"]",
+			"oValue": {
+				"q": "germany"
+			},
+			"bSubmit": true
+		},
+		{
+			"eType": "shot"
+		},
+		{
+			"eType": "eval",
+			"fEval": "extractGoogleResults"
+		},
+		
+		
+		{
+			"eType": "open",
+			"sUrl": "http://www.duckduckgo.com/"
+		},
+		{
+			"eType": "fill",
+			"sSel": "form#search_form_homepage",
+			"oValue": {
+				"q": "germany"
+			},
+			"bSubmit": true
+		},
+		{
+			"eType": "shot"
+		},
+		{
+			"eType": "eval",
+			"fEval": "extractDuckDuckGoResults"
+		}
+	]
+}
