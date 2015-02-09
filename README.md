@@ -33,6 +33,9 @@ casperjs scrape.js --uid=123 --width=1024
 casperjs scrape.js --uid=123 --timeout=1500
 casperjs scrape.js --uid=123 --dir.screenshot=img/
 ```
+
+The `uid` parameter (`123` in these examples) has to match a config file within the specified configuration directory (by default, that is `./config/`). The filename there has to be the specified UID and an additional .json (lower case). In our example, the file has to be `./config/123.json`.
+
 While the `uid` parameter is obligatory, the others are optional. Optional parameters include
 * **width** (default: `1280`) and **height** (`720`) indicating the emulated browser's viewport
 * **timeout** (default `800`) defining the time waiting after each action (e.g., page load) in milliseconds
@@ -42,6 +45,7 @@ While the `uid` parameter is obligatory, the others are optional. Optional param
 Please note, that all configuration parameters (except for mandatory uid) may also be specified within each configuration file. The latter overwrites command-line-given parameters.
 
 ### bot.js
+_to be written_
 
 ## Configuration
 Each configuration is a JSON file including an `aStep` array of the steps to do and an optional `oConfig` object with the parameters described above (within the _scrape.js_ section). `aStep` needs to have objects as array elements, each representing one step of action. These steps are run through in the given (array) order.
