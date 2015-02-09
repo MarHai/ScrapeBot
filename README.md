@@ -62,8 +62,7 @@ A single step can be one of the following (defined through `eType`, default, if 
 |shot  |screenshot current page |_none_|
 
 For eval, several public JavaScript functions are available. Currently, these include the following:
-* `extractResults` a generic function for extracting results from a CSS query yielding link tags (```A```)
-* `extractGoogleResults` the generic extraction function specified to Google
+* `extractGoogleResults` function for extracting results from a Google search results page
 * `extractDuckDuckGoResults` same for DuckDuckGo.com
 * `extractBingResults` same for Microsoft's Bing search
 * `extractTweets` extracts a list of Tweets including text, direct Tweet link, and author as out of Twitter's default stream
