@@ -61,4 +61,11 @@ A single step can be one of the following (defined through `eType`, default, if 
 |reload|reload current page |_none_|
 |shot  |screenshot current page |_none_|
 
-For further configuration specification, take the first character into account (`a` = array, `b` = boolean, `e` = enum, `f` = function, `n` = numeric, `o` = object, `s` = string) and have a look at the example config file incorporating all possible step types and options.
+For further configuration specification, have a look at the example config file incorporating all possible step types and options and take the first character of the options into account:
+* `a` = array
+* `b` = boolean
+* `e` = enum
+* `f` = function
+* `n` = numeric
+* `o` = object
+* `s` = string
