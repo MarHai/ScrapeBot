@@ -42,6 +42,7 @@ The `uid` parameter (`123` in these examples) has to match a config file within 
 
 While the `uid` parameter is obligatory, the others are optional. Optional parameters include
 * **width** (default: `1280`) and **height** (`720`) indicating the emulated browser's viewport
+* **userAgent** (default is a Mozilla Firefox under *nix) sets the emulated browser's user-agent string
 * **timeout** (default `800`) defining the time waiting after each action (e.g., page load) in milliseconds
 * **dir.prefix** (default: `./`) specifies the directory where all other directories are based
 * **dir.config** (`config/`), **dir.cookie** (`cookie/`), **dir.log** (`log/`), and **dir.screenshot** (`screenshot/`) are, each, appended to _dir.prefix_ specifying the single directories necessary (note the ending slash)
