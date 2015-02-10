@@ -7,7 +7,7 @@
  * TOC:
    * initial configuration
    * public functions (e.g., extract Google results)
-   * config interpreter
+   * config interpreter (i.e., the magic)
  *
  * (c) 2015
  * Mario Haim <haim@ifkw.lmu.de>
@@ -29,6 +29,7 @@ var oPage = require('casper').create({ verbose: false, logLevel: 'debug' }),
 		uid: null,
 		width: 1280,
 		height: 720,
+		userAgent: 'Mozilla/5.0 (X11; Linux i586; rv:31.0) Gecko/20100101 Firefox/31.0',
 		dir: {
 			prefix: './',
 			config: 'config/',
@@ -63,52 +64,7 @@ function overwriteConfig(_oOption) {
 /***********************
 ** public functions
 ***********************/
-var oPublic = {
-	//extract Google results
-	extractGoogleResults: function() {
-		return [].map.call(__utils__.findAll('h3.r a'), function(_oElem, i) {
-			return {
-				text: _oElem.innerText,
-				link: _oElem.getAttribute('href'),
-				position: ++i
-			};
-		});
-	},
-	
-	//extract DuckDuckGo results
-	extractDuckDuckGoResults: function() {
-		return [].map.call(__utils__.findAll('#links h2 > a.result__a'), function(_oElem, i) {
-			return {
-				text: _oElem.innerText,
-				link: _oElem.getAttribute('href'),
-				position: ++i
-			};
-		});
-	},
-	
-	//extract Bing results
-	extractBingResults: function() {
-		return [].map.call(__utils__.findAll('ol#b_results > li.b_algo h2 a'), function(_oElem, i) {
-			return {
-				text: _oElem.innerText,
-				link: _oElem.getAttribute('href'),
-				position: ++i
-			};
-		});
-	},
-	
-	//extract Tweets
-	extractTweets: function() {
-		return [].map.call(__utils__.findAll('div.tweet:not(.promoted-tweet) .content'), function(_oElem, i) {
-			return {
-				text: _oElem.querySelector('.tweet-text').innerText,
-				link: _oElem.querySelector('.stream-item-header .time a').getAttribute('href'),
-				author: _oElem.querySelector('.stream-item-header > a').getAttribute('href'),
-				position: ++i
-			};
-		});
-	}
-};
+var oPublic = require(oConfig.dir.prefix + 'public.js');
 
 
 
@@ -138,6 +94,7 @@ if(oConfig.uid === null) {
 	}
 	oPage.start().then(function() {
 		this.viewport(oConfig.width, oConfig.height);
+		this.userAgent(oConfig.userAgent);
 	});
 	
 	//run through config
@@ -147,21 +104,13 @@ if(oConfig.uid === null) {
 					oStep.eType = 'open';
 				}
 				switch(oStep.eType) {
-					case 'open':
-						if(typeof(oStep.sUrl) === 'undefined') {
-							log('ERROR in step ' + i + ': No URL given');
+					case 'click':
+						if(typeof(oStep.sSel) === 'undefined') {
+							log('ERROR in step ' + i + ': No selector given');
 						} else {
-							if(typeof(oStep.oConfig) === 'undefined') {
-								oStep.oConfig = {};
-							}
-							log('[' + i + '] Opening ' + oStep.sUrl);
-							this.open(oStep.sUrl, oStep.oConfig);
+							log('[' + i + '] Clicking ' + oStep.sel);
+							this.click(oStep.sel);
 						}
-						break;
-						
-					case 'reload':
-						log('[' + i + '] Reloading page');
-						this.reload();
 						break;
 						
 					case 'eval':
@@ -192,17 +141,42 @@ if(oConfig.uid === null) {
 						}
 						break;
 						
+					case 'log':
+						if(typeof(oStep.sText) !== 'undefined') {
+							log(oStep.sText);
+						}
+						break;
+						
+					case 'random':
+						if(typeof(oStep.aUrl) === 'undefined') {
+							log('ERROR in step ' + i + ': No URL array given');
+							break;
+						} else {
+							oStep.sUrl = oStep.aUrl[Math.floor(Math.random() * oStep.aUrl.length)];
+						}
+						//NO break as we want to continue to open
+					case 'open':
+						if(typeof(oStep.sUrl) === 'undefined') {
+							log('ERROR in step ' + i + ': No URL given');
+						} else {
+							if(typeof(oStep.oConfig) === 'undefined') {
+								oStep.oConfig = {};
+							}
+							log('[' + i + '] Opening ' + oStep.sUrl);
+							this.open(oStep.sUrl, oStep.oConfig);
+						}
+						break;
+						
+					case 'reload':
+						log('[' + i + '] Reloading page');
+						this.reload();
+						break;
+						
 					case 'shot':
 					case 'screenshot':
 						var sFile = oConfig.uid + '_' + i + '_' + nRunId + '.png';
 						log('[' + i + '] Taking screenshot into ' + sFile);
 						this.capture(oConfig.dir.prefix + oConfig.dir.screenshot + sFile);
-						break;
-						
-					case 'log':
-						if(typeof(oStep.sText) !== 'undefined') {
-							log(oStep.sText);
-						}
 						break;
 				}
 				this.wait(oConfig.timeout);
