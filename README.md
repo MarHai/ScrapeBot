@@ -9,7 +9,7 @@ Clone (or download) the latest version of ScrapeBot and add the executable flag 
 
 ```
 git clone https://github.com/MarHai/ScrapeBot.git
-chmod +x ./bot.sh
+cd ScrapeBot/ && chmod +x bot.sh
 ```
 
 That's it, really. Set up a config file (or use the example one included) and test it:
