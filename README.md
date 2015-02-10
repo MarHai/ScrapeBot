@@ -9,6 +9,7 @@ Clone (or download) the latest version of ScrapeBot and add the executable flag 
 
 ```
 git clone https://github.com/MarHai/ScrapeBot.git
+<<<<<<< HEAD
 chmod +x ./bot.sh
 ```
 
@@ -69,6 +70,7 @@ A single step can be one of the following (defined through `eType`, default, if 
 |reload|reload current page |_none_|
 |shot  |screenshot current page |_none_|
 
+<<<<<<< HEAD
 For _eval_, several JavaScript functions are available. Currently, these include the following:
 * `extractGoogleResults` extract results from a Google search result page (incl. title, link, and position)
 * `extractDuckDuckGoResults` same for DuckDuckGo.com
