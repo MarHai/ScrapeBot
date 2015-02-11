@@ -1,10 +1,11 @@
 module.exports = {
-	//extract Google results
+	//extract Google results (main results only, no knowledge graph, no ads, no suggestions)
 	extractGoogleResults: function() {
 		return [].map.call(__utils__.findAll('h3.r a'), function(_oElem, i) {
 			return {
 				text: _oElem.innerText,
 				link: _oElem.getAttribute('href'),
+				preview: _oElem.parentNode.nextSibling.querySelector('span.st').innerText,
 				position: ++i
 			};
 		});
@@ -42,5 +43,25 @@ module.exports = {
 				position: ++i
 			};
 		});
+	},
+	
+	//extract Google suggestions
+	extractGoogleSuggestions: function() {
+		return [].map.call(__utils__.findAll('ul.sbsb_b[role="listbox"] > li .sbqs_c'), function(_oElem, i) {
+			return {
+				text: _oElem.innerText,
+				position: ++i
+			};
+		});
+	},
+	
+	//extract first Google result
+	extractFirstGoogleResult: function() {
+		var oElem = __utils__.findOne('h3.r a');
+		return {
+			text: oElem.innerText,
+			link: oElem.getAttribute('href'),
+			preview: oElem.parentNode.nextSibling.querySelector('span.st').innerText
+		};
 	}
 };

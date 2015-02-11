@@ -6,7 +6,6 @@
  *
  * TOC:
    * initial configuration
-   * public functions (e.g., extract Google results)
    * config interpreter (i.e., the magic)
  *
  * (c) 2015
@@ -61,12 +60,6 @@ function overwriteConfig(_oOption) {
 }
 
 
-/***********************
-** public functions
-***********************/
-var oPublic = require(oConfig.dir.prefix + 'public.js');
-
-
 
 /***********************
 ** config interpreter
@@ -78,7 +71,8 @@ if(oConfig.uid === null) {
 	oPage.exit();
 } else {
 	//load config
-	var oJson = JSON.parse(oFile.read(oConfig.dir.prefix + oConfig.dir.config + oConfig.uid + '.json'));
+	var oJson = JSON.parse(oFile.read(oConfig.dir.prefix + oConfig.dir.config + oConfig.uid + '.json')),
+		oPublic = require(oConfig.dir.prefix + 'public.js');
 	var aStep = oJson.aStep;
 	if(typeof(oJson.oConfig) !== 'undefined') {
 		overwriteConfig(oJson.oConfig);
