@@ -86,4 +86,4 @@ For further configuration specification, have a look at the example config file 
 * `s` = string
 
 ## Citation
-[Haim, Mario](http://www.ls1.ifkw.uni-muenchen.de/personen/wiss_ma/haim_mario/index.html) (2015): ScrapeBot. A tool for automatized webpage interaction and scraping. Source code available at https://github.com/MarHai/ScrapeBot/.
+[Haim, Mario](http://www.ls1.ifkw.uni-muenchen.de/personen/wiss_ma/haim_mario/index.html) (2015): ScrapeBot. A CasperJS-based tool for automatized website interaction and scraping. Source code available at https://github.com/MarHai/ScrapeBot/.
