@@ -58,10 +58,10 @@ module.exports = {
 	//extract first Google result
 	extractFirstGoogleResult: function() {
 		var oElem = __utils__.findOne('h3.r a');
-		return {
+		return [{
 			text: oElem.innerText,
 			link: oElem.getAttribute('href'),
 			preview: oElem.parentNode.nextSibling.querySelector('span.st').innerText
-		};
+		}];
 	}
 };

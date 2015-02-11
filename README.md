@@ -71,7 +71,9 @@ A single step can be one of the following (defined through `eType`, default, if 
 |shot  |screenshot current page |_none_|
 
 For _eval_, several JavaScript functions are available. Currently, these include the following:
-* `extractGoogleResults` extract results from a Google search result page (incl. title, link, and position)
+* `extractGoogleResults` extract results from a Google search result page (incl. title, link, preview, and position)
+* `extractGoogleSuggestions` extract suggestive words after entering a (part from a) search term without submitting the form (incl. text and position)
+* `extractFirstGoogleResult` extract first result from a Google search result page (incl. title, link, and preview)
 * `extractDuckDuckGoResults` same for DuckDuckGo.com
 * `extractBingResults` same for Microsoft's Bing search
 * `extractTweets` extracts a list of Tweets including text, direct Tweet link, author, and position as out of Twitter's default stream
