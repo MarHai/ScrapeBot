@@ -116,6 +116,7 @@ if(oConfig.uid === null) {
 							var aResult = this.evaluate(oPublic[oStep.fEval]),
 								dTime = new Date();
 							oFile.write(oConfig.dir.prefix + oConfig.dir.log + oConfig.uid + '_eval.json', JSON.stringify({
+								nStep: i,
 								dGMT: dTime.toGMTString(),
 								nLength: aResult.length,
 								aResult: aResult
@@ -174,7 +175,7 @@ if(oConfig.uid === null) {
 						break;
 				}
 				this.wait(oConfig.timeout);
-			}})(aStep[i], (i+1))
+			}})(aStep[i], i)
 		);
 	}
 	
