@@ -50,9 +50,36 @@ While the `uid` parameter is obligatory, the others are optional. Optional param
 Note, that all configuration parameters (except for mandatory uid) may also be specified within each configuration file. The latter overwrites command-line-given parameters.
 
 ### bot.sh
-This script assumes to be in the exact same place as scrape.js. Moreover, it needs to be executable (`+x`) and have write access to `log/bot.log`. Upon run, the script looks for all available configuration files in `./config/*.json`, merges their UID with the bot-internal log file (`./log/bot.log`) in order to count each config file's amount of runs, and *scrape.js the 5 least-run configuration files*.
+This script assumes to be in the exact same place as scrape.js. Moreover, it needs to be executable (`+x`) and have write access to `log/bot.log`. Upon run, the script looks for all available configuration files in `./config/*.json`, merges their UID with the bot-internal log file (`./log/bot.log`) in order to count each config file's amount of runs, and *scrape.js all configuration files*.
 
 Note, that only runs initiated by _bot.sh_ are counted by adding their UID as a single line to `./log/bot.log`.
+
+So, in case you want to scrape.js all available configuration files four times a day, you can create a cronjob that tells bot.sh to do so:
+
+```
+crontab -e
+0 */4 * * * /path/to/bot.sh
+```
+
+Another option would be to run it continuously. That is, each time, bot.sh finishes, it is run again. Over and over. All you need to do is to specify the `-r` flag upon running. Either do so on the console or add a `&` in order to send the command to the background:
+
+```
+./bot.sh -r
+./bot.sh -r &
+```
+
+Another option is to run this bot.sh loop upon startup:
+
+```
+ln -s /path/to/bot.sh /etc/init.d/ScrapeBot
+chkconfig --add ScrapeBot
+```
+
+You could check the startup's status by using:
+
+```
+chkconfig --list
+```
 
 ## Configuration
 Each configuration is a JSON file including an `aStep` array of the steps to do and an optional `oConfig` object with the parameters described above (within the _scrape.js_ section). `aStep` needs to have objects as array elements, each representing one step of action. These steps are run through in the given (array) order.
