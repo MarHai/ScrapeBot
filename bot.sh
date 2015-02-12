@@ -55,7 +55,7 @@ while [ $# -gt 1 ]; do
 			echo "  -f, --files     config files to process (default: ./config/*.json)"
 			echo "  -l, --log       bot.sh log file path (default: ./log/bot.log)"
 			echo "  -r, --repeat    boolean if bot.sh should run infinitely (default: 1)"
-			shift
+			exit 0
 			;;
 		*)
 			# unknown option
@@ -107,7 +107,7 @@ while true; do
 			printf "Running #%s\n" "$sConf"
 			casperjs ./scrape.js --uid=$sConf
 			# log scrape.js call
-			echo "$sConf" >> $sLogfile
+			echo "$sConf\n" >> $sLogfile
 			aConfCount[$sConf]=$((${aConfCount[$sConf]} + 1))
 		fi
 		((i++))
@@ -120,3 +120,4 @@ while true; do
 done
 
 echo "Bot done"
+exit 0
