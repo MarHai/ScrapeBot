@@ -11,6 +11,22 @@ module.exports = {
 		});
 	},
 	
+	//check if Google's Knowledge Graph boxes exist at all
+	checkGoogleKnowledgeGraphBoxes: function() {
+		return [{
+			find: 'Google Knowledge Graph overall',
+			exist: __utils__.exists('.xpdopen')
+		}];
+	},
+	
+	//check if Google's Knowledge Graph boxes exist in main column (left)
+	checkGoogleKnowledgeGraphBoxesLeft: function() {
+		return [{
+			find: 'Google Knowledge Graph overall',
+			exist: __utils__.exists('ol#rso .xpdopen')
+		}];
+	},
+	
 	//extract DuckDuckGo results
 	extractDuckDuckGoResults: function() {
 		return [].map.call(__utils__.findAll('#links h2 > a.result__a'), function(_oElem, i) {

@@ -115,6 +115,10 @@ if(oConfig.uid === null) {
 							log('[' + i + '] Evaluating ' + oStep.fEval);
 							var aResult = this.evaluate(oPublic[oStep.fEval]),
 								dTime = new Date();
+							if(aResult === null) {
+								log('ERROR in step ' + i + ': eval returned NULL');
+								aResult = [];
+							}
 							oFile.write(oConfig.dir.prefix + oConfig.dir.log + oConfig.uid + '_eval.json', JSON.stringify({
 								nStep: i,
 								dGMT: dTime.toGMTString(),
