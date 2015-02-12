@@ -54,18 +54,44 @@ This script assumes to be in the exact same place as scrape.js. Moreover, it nee
 
 Note, that only runs initiated by _bot.sh_ are counted by adding their UID as a single line to `./log/bot.log`.
 
-So, in case you want to scrape.js all available configuration files four times a day, you can create a cronjob that tells bot.sh to do so:
+_bot.sh_ is capable of various commands (see all of them via `bot.sh --help`). The most important ones are `-c` and `-r`. While `-c 10` (also `--count`) allows to specify the number of configuration files to be handled within one run (10, in this case), `-r 0` (also `--repeat`) allows to manually switch off (`-r 0`) or on (`-r 1`) repeation of runs. To make it more clear, lets see, what _bot.sh_ does:
+* load all configuration files
+* load the `bot.log` file in order to find out, how many times each configuration file has been run in the past
+* sort the configuration files according to the amount of past runs
+* perform _scrape.js_ on some or all (specified through `-c`) of the files in ascending order (default is 1 file)
+* if `-r` is set to 1 (which is the default setting), restart the whole process
+
+Hence, in order to scrape.js all configuration files again and again, revalidating the number of runs per file every time a file is run, just use one of the following commands (they are the same, really):
+
+```
+./bot.sh
+./bot.sh -c 1 -r 1
+```
+
+Want to run every file exactly once, no matter the number of past runs?
+
+```
+./bot.sh -c 0 -r 0
+```
+
+Finally, you want to revalidate the number of past runs only every 100 configuration files but want to run it infinitely:
+
+```
+./bot.sh -c 100 -r 1
+```
+
+Next level - automatize everything: So, in case you want to scrape.js all available configuration files exactly four times a day, you can create a cronjob that tells bot.sh to do so:
 
 ```
 crontab -e
-0 */4 * * * /path/to/bot.sh
+0 */4 * * * /path/to/bot.sh -c 0 -r 0
 ```
 
-Another option would be to run it continuously. That is, each time, bot.sh finishes, it is run again. Over and over. All you need to do is to specify the `-r` flag upon running. Either do so on the console or add a `&` in order to send the command to the background:
+Another option would be to run it continuously. Over and over. Either do so on the console (stop it using `CTRL+c`) or add a `&` in order to send the command to the background:
 
 ```
-./bot.sh -r
-./bot.sh -r &
+./bot.sh
+./bot.sh &
 ```
 
 Another option is to run this bot.sh loop upon startup:
