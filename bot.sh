@@ -30,7 +30,6 @@ sFile=./config/*.json
 sLogfile=./log/bot.log
 while (( "$#" )); do
 	sKey="$1"
-	echo "$sKey"
 	case $sKey in
 		-c|--count)
 			nRunCount="$2"
