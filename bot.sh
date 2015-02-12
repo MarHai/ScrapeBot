@@ -30,6 +30,7 @@ sFile=./config/*.json
 sLogfile=./log/bot.log
 while [ $# -gt 1 ]; do
 	sKey="$1"
+	echo "$sKey"
 	case $sKey in
 		-c|--count)
 			nRunCount="$2"
@@ -107,7 +108,7 @@ while true; do
 			printf "Running #%s\n" "$sConf"
 			casperjs ./scrape.js --uid=$sConf
 			# log scrape.js call
-			echo "$sConf\n" >> $sLogfile
+			echo "$sConf" >> $sLogfile
 			aConfCount[$sConf]=$((${aConfCount[$sConf]} + 1))
 		fi
 		((i++))
