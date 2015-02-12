@@ -24,15 +24,21 @@
 #
 
 # interpret command line args
-nRunCount=-1
+nRunCount=1
 bRepeat=1
 sFile=./config/*.json
 sLogfile=./log/bot.log
+bDry=0
 while (( "$#" )); do
 	sKey="$1"
 	case $sKey in
 		-c|--count)
 			nRunCount="$2"
+			shift
+			;;
+		-d|--dry)
+			echo "Dry mode"
+			bDry=1
 			shift
 			;;
 		-r|--repeat)
@@ -49,12 +55,21 @@ while (( "$#" )); do
 			;;
 		-h|--help)
 			echo "Usage: bot.sh [OPTION]..."
-			echo "Run scrape.js one/multiple times"
-			echo ""
-			echo "  -c, --count     number of config files to process (default: -1/all)"
+			echo "Run scrape.js one/multiple times."
+			echo "Every run includes [-c] config files in reverse order of amounts processed. If [-r], after every run a new run is initiated."
+			echo "  -c, --count     number of config files to process per run (0 = all; default: 1)"
+			echo "  -d, --dry       enable dry mode where only config files are indexed"
 			echo "  -f, --files     config files to process (default: ./config/*.json)"
 			echo "  -l, --log       bot.sh log file path (default: ./log/bot.log)"
 			echo "  -r, --repeat    boolean if bot.sh should run infinitely (default: 1)"
+			echo ""
+			echo "Examples"
+			echo "bot.sh        same as bot.sh -c 1 -r 1"
+			echo "              evaluate runtime count after every config file (-c 1)"
+			echo "              run infinitely"
+			echo "bot.sh -c 10  run infinitely, but evaluate runtime count only every 10 config files"
+			echo "bot.sh -c 0   run infinitely, but do not evaluate runtime count"
+			echo "bot.sh -r 0   run one (the least-run so far) config file once"
 			exit 0
 			;;
 		*)
@@ -77,7 +92,7 @@ for f in $sFile; do
 done
 
 printf "%s config file(s) found\n" "${#aConf[@]}"
-if [ $nRunCount -lt 0 ]; then
+if [ $nRunCount -eq 0 ]; then
 	nRunCount=${#aConf[@]}
 fi
 
@@ -90,21 +105,32 @@ else
 	echo "No log file found."
 fi
 
+# dry mode
+if [ $bDry -eq 1 ]; then
+	for k in "${!aConfCount[@]}"; do printf '%s\t%s\n' "${aConfCount[$k]}" "$k"; done | sort -g
+fi
+
 # start loop
 while true; do
 	# sort entries
 	IFS=$'\n'
 	set -f
-	aConfCountKeysSortedDesc=($(
-		for k in "${!aConfCount[@]}"; do printf '%s\t%s\n' "${aConfCount[$k]}" "$k"; done | sort -r | sed $'s/.*\t//'
+	aConfCountKeysSorted=($(
+		for k in "${!aConfCount[@]}"; do printf '%s\t%s\n' "${aConfCount[$k]}" "$k"; done | sort -g | sed $'s/.*\t//'
 	  ))
 	unset IFS
-
+	
+	# dry mode, 2
+	if [ $bDry -eq 1 ]; then
+		printf "If not dry, now running #%s\n" ${aConfCountKeysSorted[0]}
+		exit 0
+	fi
+	
 	# find the lowest x (nRunCount) entries and scrape.js them
 	i=0
 	while [ $i -lt $nRunCount ]; do
-		if [ ${#aConfCountKeysSortedDesc[@]} -gt $i ]; then
-			sConf=${aConfCountKeysSortedDesc[$i]}
+		if [ ${#aConfCountKeysSorted[@]} -gt $i ]; then
+			sConf=${aConfCountKeysSorted[$i]}
 			printf "Running #%s\n" "$sConf"
 			casperjs ./scrape.js --uid=$sConf
 			# log scrape.js call (first, add a new line; second, add the conf file name)
