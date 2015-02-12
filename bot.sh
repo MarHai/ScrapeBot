@@ -73,6 +73,7 @@ declare -A aConfCount
 for f in $sFile; do
 	aConf[$i]=$(echo $f | rev | cut -d '/' -f 1 | rev | cut -d '.' -f 1)
 	aConfCount[${aConf[$i]}]=0
+	((i++))
 done
 
 printf "%s config file(s) found\n" "${#aConf[@]}"
