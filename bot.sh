@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#chkconfig: 35 80 05
+#description: ScrapeBot
+
 #
 # ScrapeBot/bot.sh
 #
@@ -22,7 +25,7 @@
 
 # interpret command line args
 nRunCount=-1
-bRepeat=0
+bRepeat=1
 sFile=./config/*.json
 sLogfile=./log/bot.log
 while [ $# -gt 1 ]; do
@@ -51,7 +54,7 @@ while [ $# -gt 1 ]; do
 			echo "  -c, --count     number of config files to process (default: -1/all)"
 			echo "  -f, --files     config files to process (default: ./config/*.json)"
 			echo "  -l, --log       bot.sh log file path (default: ./log/bot.log)"
-			echo "  -r, --repeat    boolean if bot.sh should run infinitely (default: FALSE)"
+			echo "  -r, --repeat    boolean if bot.sh should run infinitely (default: 1)"
 			shift
 			;;
 		*)
