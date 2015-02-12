@@ -73,6 +73,7 @@ if(oConfig.uid === null) {
 	//load config
 	var oJson = JSON.parse(oFile.read(oConfig.dir.prefix + oConfig.dir.config + oConfig.uid + '.json')),
 		oPublic = require(oConfig.dir.prefix + 'public.js');
+oPage.echo(JSON.stringify(oPublic));
 	var aStep = oJson.aStep;
 	if(typeof(oJson.oConfig) !== 'undefined') {
 		overwriteConfig(oJson.oConfig);
@@ -174,7 +175,7 @@ if(oConfig.uid === null) {
 						break;
 				}
 				this.wait(oConfig.timeout);
-			}})(aStep[i], i)
+			}})(aStep[i], (i+1))
 		);
 	}
 	
