@@ -136,6 +136,15 @@ if(oConfig.uid === null) {
 						}
 						break;
 						
+					case 'key':
+						if(typeof(oStep.sSel) === 'undefined' || typeof(oStep.sKey) === 'undefined') {
+							log('ERROR in step ' + i + ': Input selector or keys missing');
+						} else {
+							log('[' + i + '] Sending keystrokes to ' + oStep.sSel + ' (' + oStep.sKey + ')');
+							this.sendKeys(oStep.sSel, oStep.sKey, { keepFocus: true });
+						}
+						break;
+						
 					case 'log':
 						if(typeof(oStep.sText) !== 'undefined') {
 							log(oStep.sText);

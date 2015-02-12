@@ -49,6 +49,12 @@ While the `uid` parameter is obligatory, the others are optional. Optional param
 
 Note, that all configuration parameters (except for mandatory uid) may also be specified within each configuration file. The latter overwrites command-line-given parameters.
 
+Further note, that if you need language settings assigned (e.g., because Google is presented in English although you need another language), you just need to `export` appropriate language settings within your *nix environment:
+
+```
+export LANG="de_DE.UTF-8"
+```
+
 ### bot.sh
 This script assumes to be in the exact same place as scrape.js. Moreover, it needs to be executable (`+x`) and have write access to `log/bot.log`. Upon run, the script looks for all available configuration files in `./config/*.json`, merges their UID with the bot-internal log file (`./log/bot.log`) in order to count each config file's amount of runs, and *scrape.js all configuration files*.
 
@@ -117,6 +123,7 @@ A single step can be one of the following (defined through `eType`, default, if 
 |click |click a link or button |`sSel`|
 |eval  |evaluate JavaScript function (see list below) within called page |`fEval`|
 |fill  |fill form (field) |`sSel`, `oValue`, `bSubmit`|
+|key   |send keystrokes to form field |`sSel`, `sKey`|
 |log   |write into log file |`sText`|
 |open  |open URL |`sUrl`|
 |random|open one random URL out of an array of URLs |`aUrl`|
