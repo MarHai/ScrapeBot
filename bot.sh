@@ -36,7 +36,7 @@ while (( "$#" )); do
 			shift
 			;;
 		-r|--repeat)
-			bRepeat=1
+			bRepeat="$2"
 			shift
 			;;
 		-f|--files)
@@ -77,7 +77,7 @@ for f in $sFile; do
 done
 
 printf "%s config file(s) found\n" "${#aConf[@]}"
-if [ $nRunCount -eq -1 ]; then
+if [ $nRunCount -lt 0 ]; then
 	nRunCount=${#aConf[@]}
 fi
 
