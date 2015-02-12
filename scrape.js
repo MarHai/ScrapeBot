@@ -73,7 +73,6 @@ if(oConfig.uid === null) {
 	//load config
 	var oJson = JSON.parse(oFile.read(oConfig.dir.prefix + oConfig.dir.config + oConfig.uid + '.json')),
 		oPublic = require(oConfig.dir.prefix + 'public.js');
-oPage.echo(JSON.stringify(oPublic));
 	var aStep = oJson.aStep;
 	if(typeof(oJson.oConfig) !== 'undefined') {
 		overwriteConfig(oJson.oConfig);
@@ -103,8 +102,8 @@ oPage.echo(JSON.stringify(oPublic));
 						if(typeof(oStep.sSel) === 'undefined') {
 							log('ERROR in step ' + i + ': No selector given');
 						} else {
-							log('[' + i + '] Clicking ' + oStep.sel);
-							this.click(oStep.sel);
+							log('[' + i + '] Clicking ' + oStep.sSel);
+							this.click(oStep.sSel);
 						}
 						break;
 						
