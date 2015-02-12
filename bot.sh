@@ -28,7 +28,7 @@ nRunCount=-1
 bRepeat=1
 sFile=./config/*.json
 sLogfile=./log/bot.log
-while [ $# -gt 1 ]; do
+while (( "$#" )); do
 	sKey="$1"
 	echo "$sKey"
 	case $sKey in
@@ -107,8 +107,8 @@ while true; do
 			sConf=${aConfCountKeysSortedDesc[$i]}
 			printf "Running #%s\n" "$sConf"
 			casperjs ./scrape.js --uid=$sConf
-			# log scrape.js call
-			echo "$sConf" >> $sLogfile
+			# log scrape.js call (first, add a new line; second, add the conf file name)
+			sed -i -e '$a\' $sLogfile && echo "$sConf" >> $sLogfile
 			aConfCount[$sConf]=$((${aConfCount[$sConf]} + 1))
 		fi
 		((i++))
