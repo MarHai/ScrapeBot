@@ -72,7 +72,8 @@ if(oConfig.uid === null) {
 } else {
 	//load config
 	var oJson = JSON.parse(oFile.read(oConfig.dir.prefix + oConfig.dir.config + oConfig.uid + '.json')),
-		oPublic = require(oConfig.dir.prefix + 'public.js');
+		oPublic = require(oConfig.dir.prefix + 'public.js'),
+		dTime = new Date();
 	var aStep = oJson.aStep;
 	if(typeof(oJson.oConfig) !== 'undefined') {
 		overwriteConfig(oJson.oConfig);
@@ -93,7 +94,7 @@ if(oConfig.uid === null) {
 	
 	//run through config
 	for(var i = 0; i < aStep.length; i++) {
-		oPage.then((function(oStep, i) { return function() {
+		oPage.then((function(oStep, i, _dTime) { return function() {
 				if(typeof(oStep.eType) === 'undefined') {
 					oStep.eType = 'open';
 				}
@@ -113,15 +114,14 @@ if(oConfig.uid === null) {
 							log('ERROR in step ' + i + ': No function given');
 						} else {
 							log('[' + i + '] Evaluating ' + oStep.fEval);
-							var aResult = this.evaluate(oPublic[oStep.fEval]),
-								dTime = new Date();
+							var aResult = this.evaluate(oPublic[oStep.fEval]);
 							if(aResult === null) {
 								log('ERROR in step ' + i + ': eval returned NULL');
 								aResult = [];
 							}
 							oFile.write(oConfig.dir.prefix + oConfig.dir.log + oConfig.uid + '_eval.json', JSON.stringify({
 								nStep: i,
-								dGMT: dTime.toGMTString(),
+								dGMT: _dTime.toGMTString(),
 								nLength: aResult.length,
 								aResult: aResult
 							}) + '\n', 'a');
@@ -188,7 +188,7 @@ if(oConfig.uid === null) {
 						break;
 				}
 				this.wait(oConfig.timeout);
-			}})(aStep[i], i)
+			}})(aStep[i], i, dTime)
 		);
 	}
 	
