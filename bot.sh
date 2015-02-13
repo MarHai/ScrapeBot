@@ -92,7 +92,7 @@ for f in $sFile; do
 done
 
 printf "%s config file(s) found\n" "${#aConf[@]}"
-if [ $nRunCount -eq 0 ]; then
+if [ $nRunCount -le 0 ]; then
 	nRunCount=${#aConf[@]}
 fi
 
