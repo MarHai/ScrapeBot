@@ -103,6 +103,8 @@ if [ -e "$sLogfile" ]; then
 	done < $sLogfile
 else
 	echo "No log file found."
+	touch "$sLogfile"
+	echo "Log file created at $sLogfile"
 fi
 
 # dry mode
