@@ -43,7 +43,7 @@ nRunId = nRunId.getFullYear() + '-' + nRunId.getDate() + '-' + nRunId.getDay() +
 function log(_sText) {
 	oPage.echo(_sText);
 	var dTime = new Date();
-	_sText = dTime.toLocaleString() + ' .' + dTime.getMilliseconds() + ' ' + _sText + '\n';
+	_sText = dTime.toGMTString() + ' .' + dTime.getMilliseconds() + ' ' + _sText + '\n';
 	oFile.write(oConfig.dir.prefix + oConfig.dir.log + oConfig.uid + '.txt', _sText, 'a');
 }
 function overwriteConfig(_oOption) {
