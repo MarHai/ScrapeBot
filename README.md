@@ -20,6 +20,8 @@ casperjs scrape.js --uid=example
 
 Make sure that all necessary directories (config, cookie, log, screenshot) exist and are in place. Please note that _ScrapeBot keeps track of cookies_.
 
+After you are done with your data collection, you might want to [import the data into R](Rimport.md).
+
 ## A bit of description
 ScrapeBot consists of two major parts:
 * **scrape.js** handles all the actions defined within _one config_ file at _one time_
