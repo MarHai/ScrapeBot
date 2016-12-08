@@ -26,7 +26,6 @@ var oPage = require('casper').create({ verbose: false, logLevel: 'debug' }),
 	nRunId = new Date(),
 	oConfig = {
 		uid: null,
-		sAcceptLanguage: null,
 		bCookie: true,
 		width: 1280,
 		height: 720,
