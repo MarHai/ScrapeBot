@@ -26,6 +26,8 @@ var oPage = require('casper').create({ verbose: false, logLevel: 'debug' }),
 	nRunId = new Date(),
 	oConfig = {
 		uid: null,
+		sAcceptLanguage: null,
+		bCookie: true,
 		width: 1280,
 		height: 720,
 		userAgent: 'Mozilla/5.0 (X11; Linux i586; rv:31.0) Gecko/20100101 Firefox/31.0',
@@ -81,11 +83,13 @@ if(oConfig.uid === null) {
 	log('Config: ' + JSON.stringify(oConfig));
 
 	//init casper
-	phantom.cookiesEnabled = true;
-	sCookieFile = oConfig.dir.prefix + oConfig.dir.cookie + oConfig.uid + '.txt';
-	if(oFile.exists(sCookieFile)) {
-		log('Loading cookies from ' + sCookieFile);
-		phantom.cookies = JSON.parse(oFile.read(sCookieFile));
+	if(oConfig.bCookie) {
+		phantom.cookiesEnabled = true;
+		sCookieFile = oConfig.dir.prefix + oConfig.dir.cookie + oConfig.uid + '.txt';
+		if(oFile.exists(sCookieFile)) {
+			log('Loading cookies from ' + sCookieFile);
+			phantom.cookies = JSON.parse(oFile.read(sCookieFile));
+		}
 	}
 	oPage.start().then(function() {
 		this.viewport(oConfig.width, oConfig.height);
@@ -128,6 +132,7 @@ if(oConfig.uid === null) {
 						}
 						break;
 						
+						
 					case 'fill':
 						if(typeof(oStep.sSel) === 'undefined' || typeof(oStep.oValue) === 'undefined') {
 							log('ERROR in step ' + i + ': Form selector or values missing');
@@ -135,9 +140,34 @@ if(oConfig.uid === null) {
 							if(typeof(oStep.bSubmit) === 'undefined') {
 								oStep.bSubmit = false;
 							}
+							var nRandomFill = 0;
+							for(var sKey in oStep.oValue) {
+								if(typeof(oStep.oValue[sKey]) === 'object') {
+                                    var nRand = Math.floor(Math.random() * (oStep.oValue[sKey].length + 1));
+                                    if(nRand >= oStep.oValue[sKey].length) {
+                                        nRand -= 1;
+                                    }
+									nRandomFill++;
+									oStep.oValue[sKey] = oStep.oValue[sKey][nRand];
+									log('[' + i + '] Random fill string set (' + oStep.oValue[sKey] + ')');
+								}
+							}
+							if(nRandomFill > 0) {
+								oFile.write(oConfig.dir.prefix + oConfig.dir.log + oConfig.uid + '_eval.json', JSON.stringify({
+									nStep: i,
+									dGMT: _dTime.toGMTString(),
+									nLength: nRandomFill,
+									aResult: oStep.oValue
+								}) + '\n', 'a');
+							}
 							log('[' + i + '] Filling form ' + oStep.sSel + ' (' + JSON.stringify(oStep.oValue) + ')');
 							this.fill(oStep.sSel, oStep.oValue, oStep.bSubmit);
 						}
+						break;
+					
+					case 'back':
+						log('[' + i + '] Going one step back.');
+						this.back();
 						break;
 						
 					case 'key':
@@ -193,8 +223,10 @@ if(oConfig.uid === null) {
 	}
 	
 	oPage.run(function() {
-		log('Storing cookies in ' + sCookieFile);
-		oFile.write(sCookieFile, JSON.stringify(phantom.cookies), 664);
+		if(oConfig.bCookie) {
+			log('Storing cookies in ' + sCookieFile);
+			oFile.write(sCookieFile, JSON.stringify(phantom.cookies), 664);
+		}
 		log('Finishing #' + oConfig.uid);
 		this.exit();
 	});

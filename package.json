@@ -1,0 +1,27 @@
+{
+  "name": "scrapebot",
+  "version": "2.0.0",
+  "description": "Version for follow-up study on Googles behavior in suicide cases.",
+  "main": "bot.sh",
+  "dependencies": {
+    "casperjs": "^1.1.3",
+    "phantomjs": "^2.1.7"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "scrapebot"
+  },
+  "keywords": [
+    "research",
+    "scraping",
+    "health",
+    "communication",
+    "casperjs"
+  ],
+  "author": "Mario Haim",
+  "license": "ISC"
+}
