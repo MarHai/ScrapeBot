@@ -23,7 +23,7 @@ module.exports = {
 	checkGoogleKnowledgeGraphBoxesLeft: function() {
 		return [{
 			find: 'Google Knowledge Graph overall',
-			exist: __utils__.exists('#rso .xpdopen')
+			exist: __utils__.exists('#rso ._NId .xpdopen._vcj')
 		}];
 	},
 	
