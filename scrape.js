@@ -26,6 +26,7 @@ var oPage = require('casper').create({ verbose: false, logLevel: 'debug' }),
 	nRunId = new Date(),
 	oConfig = {
 		uid: null,
+		sAcceptLanguage: null,
 		bCookie: true,
 		width: 1280,
 		height: 720,
@@ -37,14 +38,19 @@ var oPage = require('casper').create({ verbose: false, logLevel: 'debug' }),
 			log: 'log/',
 			screenshot: 'screenshot/'
 		},
-		timeout: 800
+		timeout: 800,
+        bLogToREST: false,
+        sRESTUrl: '',
+        sRESTIdentifier: '',
+        sRESTKey: '',
+        aRESTdata: []
 	};
 nRunId = nRunId.getFullYear() + '-' + nRunId.getDate() + '-' + nRunId.getDay() + '_' + 
 	nRunId.getHours() + '-' + nRunId.getMinutes() + '-' + nRunId.getSeconds();
 function log(_sText) {
 	oPage.echo(_sText);
 	var dTime = new Date();
-	_sText = dTime.toGMTString() + ' .' + dTime.getMilliseconds() + ' ' + _sText + '\n';
+	_sText = dTime.toUTCString() + ' .' + dTime.getMilliseconds() + ' ' + _sText + '\n';
 	oFile.write(oConfig.dir.prefix + oConfig.dir.log + oConfig.uid + '.txt', _sText, 'a');
 }
 function overwriteConfig(_oOption) {
@@ -58,6 +64,22 @@ function overwriteConfig(_oOption) {
 			}
 		}
 	}
+}
+function logEval(_nStep, _dUTC, _nLength, _aResult) {
+    if(oConfig.bLogToREST) {
+        oConfig.aRESTdata.push({
+            nStep: _nStep,
+            dUTC: _dUTC,
+            nLength: _nLength,
+            aResult: _aResult
+        });
+    }
+    oFile.write(oConfig.dir.prefix + oConfig.dir.log + oConfig.uid + '_eval.json', JSON.stringify({
+                    nStep: _nStep,
+                    dUTC: _dUTC,
+                    nLength: _nLength,
+                    aResult: _aResult
+                }) + '\n', 'a');
 }
 
 
@@ -122,12 +144,7 @@ if(oConfig.uid === null) {
 								log('ERROR in step ' + i + ': eval returned NULL');
 								aResult = [];
 							}
-							oFile.write(oConfig.dir.prefix + oConfig.dir.log + oConfig.uid + '_eval.json', JSON.stringify({
-								nStep: i,
-								dGMT: _dTime.toGMTString(),
-								nLength: aResult.length,
-								aResult: aResult
-							}) + '\n', 'a');
+                            logEval(i, _dTime.toUTCString(), aResult.length, aResult);
 						}
 						break;
 						
@@ -152,12 +169,7 @@ if(oConfig.uid === null) {
 								}
 							}
 							if(nRandomFill > 0) {
-								oFile.write(oConfig.dir.prefix + oConfig.dir.log + oConfig.uid + '_eval.json', JSON.stringify({
-									nStep: i,
-									dGMT: _dTime.toGMTString(),
-									nLength: nRandomFill,
-									aResult: oStep.oValue
-								}) + '\n', 'a');
+                                logEval(i, _dTime.toUTCString(), nRandomFill, oStep.oValue);
 							}
 							log('[' + i + '] Filling form ' + oStep.sSel + ' (' + JSON.stringify(oStep.oValue) + ')');
 							this.fill(oStep.sSel, oStep.oValue, oStep.bSubmit);
@@ -220,6 +232,21 @@ if(oConfig.uid === null) {
 			}})(aStep[i], i, dTime)
 		);
 	}
+    
+    if(oConfig.bLogToREST) {
+        oPage.then(function() {
+            log('Pushing eval data to REST (' + oConfig.sRESTUrl + '): ' + JSON.stringify(oConfig.aRESTdata));
+            this.open(oConfig.sRESTUrl, {
+                    method: 'post',
+                    data: {
+                        me: oConfig.sRESTIdentifier,
+                        key: oConfig.sRESTKey,
+                        data: JSON.stringify(oConfig.aRESTdata)
+                    }
+                });
+            oPage.wait(oConfig.timeout);
+        });
+    }
 	
 	oPage.run(function() {
 		if(oConfig.bCookie) {

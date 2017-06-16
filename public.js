@@ -11,6 +11,14 @@ module.exports = {
 		});
 	},
 	
+	//check if Google's results are shown at all
+	checkGoogleResults: function() {
+		return [{
+			find: 'Google Results',
+			exist: __utils__.exists('#rso')
+		}];
+	},
+	
 	//check if Google's Knowledge Graph boxes exist at all
 	checkGoogleKnowledgeGraphBoxes: function() {
 		return [{

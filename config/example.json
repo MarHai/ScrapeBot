@@ -3,7 +3,11 @@
 		"width": 1024,
 		"height": 768,
 		"dir.prefix": "./",
-		"timeout": 1500
+		"timeout": 1500,
+		"bLogToREST": true,
+		"sRESTUrl": "https://example.com",
+		"sRESTIdentifier": "my-instance",
+		"sRESTKey": "my_top_secret_key"
 	},
 	"aStep": [
 		{
