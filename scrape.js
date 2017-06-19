@@ -244,7 +244,7 @@ if(oConfig.uid === null) {
                         data: JSON.stringify(oConfig.aRESTdata)
                     }
                 });
-            oPage.wait(oConfig.timeout);
+            this.wait(oConfig.timeout);
         });
     }
 	
