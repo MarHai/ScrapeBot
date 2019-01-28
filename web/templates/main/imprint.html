@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block content %}
+<div class="row">
+    <div class="col-3">
+        <h5>Imprint</h5>
+        <p>
+            Mario Haim<br>
+            Tabbertstr. 6h<br>
+            12459 Berlin
+        </p>
+        <p>
+            Email:<br>
+            mario
+            <svg viewBox="0 0 32 32" width="24" height="24" fill="none" stroke-width="2"
+                 stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 26 L30 26 30 6 2 6 Z M2 6 L16 16 30 6"></path>
+            </svg>
+            haim.it
+        </p>
+        <p>
+            <a href="https://haim.it">www.haim.it</a>
+        </p>
+    </div>
+    <div class="col-9">
+        <h5>Disclaimer</h5>
+        <p>
+            This website does not collect any data whatsoever. That is, no analytical tools are in place.
+            Cookies are only set for login purposes. Third-party plugins in use include Bootstrap, jQuery, Moment.js,
+            and Chart.js.
+        </p>
+        <p>
+            The actual agent-based testing (i.e., the conduction of recipes) is done on instances elsewhere.
+            Ultimately, that is part of the power of these tools. You can also add to this power by providing your
+            own instance. It's not hard to set up. All that is required, is a server capable of running Python.
+        </p>
+    </div>
+</div>
+{% endblock %}

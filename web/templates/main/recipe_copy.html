@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block content %}
+<form action="" method="post" class="form" role="form"
+      onsubmit="return confirm('Are you sure that you want to create those copies?');">
+
+    <h2>Create copies of "{{ recipe.name }}"</h2>
+    <p class="alert alert-info">
+        You may create an infinite amount of recipe copies here. However, be warned, that this is an irreversible step.
+        Also, keep in mind that this current recipe is not counted to the number of copies. That is, if you create
+        3 copies here, you will end up with a total of 4 similar recipes, given that this current one already exists.
+        What is more, is that all newly created recipes will be treated equally (apart from naming patterns). That is,
+        all newly created recipes will be made (in)active (depending on your choice below) and will be appended to all
+        checked instances equally.
+    </p>
+    <div class="row">
+        <div class="col-5">
+            {{ form.hidden_tag() }}
+            {{ wtf.form_field(form.amount) }}
+            {{ wtf.form_field(form.name) }}
+            <p class="mb-4">
+                <small class="form-text text-muted">
+                    It is recommended that you use different names for all the recipes. Hence, you may want to include
+                    placeholders here. <code>%i</code> gets replaced with an increasing number (starting at 1),
+                    <code>%n</code> with the total number of copies.<br />
+                    For example, creating 3 copies with the pattern <code>{{ recipe.name }} %i/%n</code> would result in
+                    <code>{{ recipe.name }} 1/3</code>, <code>{{ recipe.name }} 2/3</code>, and
+                    <code>{{ recipe.name }} 3/3</code> respectively.
+                </small>
+            </p>
+            {{ wtf.form_field(form.description, rows=5) }}
+            {{ wtf.form_field(form.active) }}
+            {{ wtf.form_field(form.user_privileges) }}
+            <p class="mb-4">
+                <small class="form-text text-muted">
+                    {% if recipe.owner == current_user %}
+                        If checked, newly created recipes will be owned by you, just like the current one, and all user
+                        privileges will be copied accordingly. Conversely, if not checked, newly created recipes will
+                        still be owned by you but no additional user privileges will be created.
+                    {% else %}
+                        If checked, newly created recipes will be owned by {{ recipe.owner.name }}, just like the
+                        current one, and all user privileges will be copied accordingly. Conversely, if not checked,
+                        newly created recipes will instead be owned by you and no additional user privileges will be
+                        created.
+                    {% endif %}
+                </small>
+            </p>
+        </div>
+        <div class="col-6 offset-1">
+            <h5>Instances to run all the recipes on</h5>
+            <ul class="list-group list-group-flush">
+                {% if instances|length > 0 %}
+                    {% for instance in instances %}
+                        <li class="list-group-item form-check">
+                            <label class="form-check-label d-block">
+                                {% if instance.active %}
+                                    <input class="form-check-input" name="instance_{{ instance.uid }}"
+                                           type="checkbox" value="y" checked>
+                                {% else %}
+                                    <input class="form-check-input" name="instance_{{ instance.uid }}"
+                                           type="checkbox" value="y">
+                                {% endif %}
+                                {{ instance.name }}
+                            </label>
+                        </li>
+                    {% endfor %}
+                {% else %}
+                    <li class="list-group-item disabled">No instances available</li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+    <div class="text-right">
+        {{ wtf.form_field(form.submit) }}
+        <a class="btn btn-outline-secondary" href="{{ url_for('main.recipe', recipe_uid=recipe.uid) }}">
+            Abort
+        </a>
+    </div>
+</form>
+{% endblock %}

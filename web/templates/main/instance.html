@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block content %}
+<div class="mb-5">
+    <h2>Number of runs per recipe on {{ instance.name }}</h2>
+    {% if instance.runs|length > 0 %}
+        <canvas class="chart_instance" data-instance="{{ instance.uid }}" width="400" height="200"></canvas>
+    {% else %}
+        <p class="text-muted">No recipe has ever run on this instance so far.</p>
+    {% endif %}
+</div>
+<a data-toggle="collapse"
+   href="#settings"
+   aria-expanded="false"
+   aria-controls="settings"
+   class="border-top py-2 d-block text-center">More settings</a>
+<div class="collapse" id="settings">
+    <form action="" method="post" class="form mb-4" role="form">
+        <div class="row">
+            <div class="col-5">
+                <h5>General instance info</h5>
+                {{ form.hidden_tag() }}
+                {{ wtf.form_field(form.name, disabled=True) }}
+                {{ wtf.form_field(form.description) }}
+            </div>
+            <div class="col-6 offset-1">
+                <h5>Recipes to run on this instance</h5>
+                <ul class="list-group list-group-flush">
+                    {% if recipes|length > 0 %}
+                        {% for recipe in recipes %}
+                            <li class="list-group-item form-check">
+                                <label class="form-check-label d-block">
+                                    {% if recipe.active %}
+                                        <input class="form-check-input" name="recipe_{{ recipe.uid }}"
+                                               type="checkbox" value="y" checked>
+                                    {% else %}
+                                        <input class="form-check-input" name="recipe_{{ recipe.uid }}"
+                                               type="checkbox" value="y">
+                                    {% endif %}
+                                    {% if recipe.recipe_active %}
+                                        {{ recipe.name }} (runs every {{ recipe.interval }} minute(s))
+                                    {% else %}
+                                        {{ recipe.name }} (currently inactive)
+                                    {% endif %}
+                                </label>
+                            </li>
+                        {% endfor %}
+                    {% else %}
+                        <li class="list-group-item disabled">No recipes available</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+        <div class="text-right">
+            {{ wtf.form_field(form.submit) }}
+        </div>
+    </form>
+</div>
+{% endblock %}

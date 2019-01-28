@@ -1,0 +1,42 @@
+Hi {{ user.name }},
+
+please find attached the data that you requested. Oh and please note that this email sender is used for sending but not so much for reading.
+
+Data is mingled into one large CSV file. It consists of one row per stored data value and as such potentially many rows per run. Let's take a look at its columns:
+- run holds the exact time a run was initiated. A run is defined as one time a browser was fired up on one instance and ran one whole recipe.
+- instance holds the name of the instance on which this specific run ran.
+- recipe is an ID which might not be necessary for you if your recipe_name (see next column) is unique.
+- recipe_name is the name of the recipe that ran in this specific run.
+- recipe_status gives some rare information on whether this run succeeded or not.
+- step refers to the number of the step within a recipe that resulted in the stored data.
+- step_name gives an indication of what the step did.
+- data_creation is typically rather close to the run's initiation time but allows to check how much time has passed since then. It indicates when exactly a data value was stored.
+- data_value, finally, holds the actually retrieved value.
+
+If you are using R for data analysis, you can simply store the attached file on your hard drive, set R's working directory to this location, and employ some of the following code to get started:
+
+# Import the file into a data frame
+data <- read.csv('data.csv', na.strings='', colClasses=c('POSIXct', 'factor', 'factor', 'factor', 'factor', 'factor', 'factor', 'POSIXct', 'character'))
+
+# Inspect the data frame
+str(data)
+
+# How many runs on how many instances are included in this data?
+table(data[!duplicated(data$run), 'instance'])
+
+# Are they all successful?
+table(data[!duplicated(data$run), c('instance', 'recipe_status')])
+
+# Okay, let's assume I have this "get_text" step on all recipes in this dataset. How to extract all of its values?
+data[data$step_name == 'get_text', 'data_value']
+
+
+Kind regards,
+ScrapeBot
+
+
+P.S.: In case you did take screenshots, there is currently no easy way to get them. Please reach out to Mario Haim <mario@haim.it>.
+
+--
+https://scrapebot.haim.it
+ScrapeBot was built and is maintained by Mario Haim (https://haim.it).

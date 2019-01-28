@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block content %}
+<div class="row">
+    <div class="col-8">
+        <p>
+            Welcome to the ScrapeBot administration website.
+        </p>
+        <p>
+            This is where you can set up and maintain any ScrapeBot recipes but also oversee instances and download
+            actually collected data. In other words, it is the command center for your agent-based testing (ABT)
+            projects.
+        </p>
+        <p>
+            If you have never heard of this but were directed here, take a look at
+            <a href="https://doi.org/10.1080/10410236.2015.1113484">one</a>
+            or
+            <a href="https://doi.org/10.1177/1461444818801010">another</a>
+            paper where this method has been put to test.
+            Conversely, if you know what this is but for some reason don't have access to this platform,
+            you can obviously shoot me a message.
+        </p>
+        <p>
+            Happy ABT-ing!
+        </p>
+    </div>
+    <div class="col-4">
+        <div class="mb-3">
+            {{ wtf.quick_form(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}

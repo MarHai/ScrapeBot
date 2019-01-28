@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block content %}
+<div>
+    <div class="row">
+        <div class="col-5">
+            <h5>General step info</h5>
+            <form action="" method="post" class="form" role="form">
+                {{ form_step.hidden_tag() }}
+                {{ wtf.form_field(form_step.type) }}
+                <p class="mb-4">
+                    <small class="form-text text-muted">
+                        ScrapeBot builds on <a href="https://www.seleniumhq.org/projects/webdriver/">Selenium WebDriver</a>.
+                        You can find more information on
+                        <a href="https://selenium-python.readthedocs.io/navigating.html">navigating</a> and
+                        <a href="https://selenium-python.readthedocs.io/locating-elements.html">finding</a>
+                        on Selenium's online help pages.
+                    </small>
+                </p>
+                {% if step.use_random_item_instead_of_value == 1 %}
+                    {{ wtf.form_field(form_step.value, disabled=True) }}
+                {% else %}
+                    {{ wtf.form_field(form_step.value) }}
+                {% endif %}
+                <p class="mb-4">
+                    <small class="form-text text-muted">
+                        The value's use is determined by the chosen type.
+                        For example, a "log" type means that the value is written to the log file directly.
+                        A "find_by_id" type requires value to be the ID of the element to identify.
+                        Also note that if you choose to randomly pick an item (checkbox below), this value field is ignored.
+                    </small>
+                </p>
+                {{ wtf.form_field(form_step.use_random_item_instead_of_value) }}
+                <p class="mb-4">
+                    <small class="form-text text-muted">The list of items can be maintained after saving this step.</small>
+                </p>
+                {{ wtf.form_field(form_step.active) }}
+                <div class="text-right">
+                    {{ wtf.form_field(form_step.submit) }}
+                    <a class="btn btn-outline-secondary" href="{{ url_for('main.recipe', recipe_uid=recipe.uid) }}">
+                        Back to recipe
+                    </a>
+                </div>
+            </form>
+        </div>
+        <div class="col-6 offset-1">
+            {% if step.use_random_item_instead_of_value == 1 %}
+                <h5>Items to randomly pick from</h5>
+                <ul class="list-group list-group-flush mb-4">
+                    {% for item in step.items %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ item.value }}
+                            <div>
+                                <a href="{{ url_for('main.item', recipe_uid=recipe.uid, step_uid=step.uid, item_uid=item.uid) }}"
+                                   title="edit" class="btn btn-sm btn-link">
+                                    <svg viewBox="0 0 32 32" width="24" height="24" fill="none" stroke-width="2"
+                                         stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M30 7 L25 2 5 22 3 29 10 27 Z M21 6 L26 11 Z M5 22 L10 27 Z"></path>
+                                    </svg>
+                                </a>
+                                <a href="{{ url_for('main.item', recipe_uid=recipe.uid, step_uid=step.uid, item_uid=item.uid, delete=1) }}"
+                                   title="delete" class="btn btn-sm btn-link">
+                                    <svg viewBox="0 0 32 32" width="24" height="24" fill="none" stroke-width="2"
+                                         stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M28 6 L6 6 8 30 24 30 26 6 4 6 M16 12 L16 24 M21 12 L20 24 M11 12 L12 24 M12 6 L13 2 19 2 20 6"></path>
+                                    </svg>
+                                </a>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <div class="text-right">
+                    <a class="btn btn-sm btn-outline-secondary"
+                       href="{{ url_for('main.item', recipe_uid=recipe.uid, step_uid=step.uid) }}">Add new item</a>
+                </div>
+            {% else %}
+                <p class="text-muted">
+                    If you choose to "randomly pick an item", you can edit the list of items here.
+                </p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

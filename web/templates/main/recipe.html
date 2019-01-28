@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block content %}
+{% if recipe %}
+    <div>
+        <div class="row mb-5">
+            <div class="col-6">
+                <h2>{{ recipe.name }}</h2>
+                <div class="card mt-4 shadow-sm">
+                    <div class="card-body">
+                        {% if recipe.active %}
+                            {% if recipe.instances|length > 0 %}
+                                This recipe is <strong>actively running</strong>
+                                every {{ recipe.interval }} minute(s)
+                                on {{ recipe.instances|length }} instance(s).
+                                {% if recipe.instances|length > instances|length %}
+                                    Importantly, you can only see {{ instances|length }} of these instances,
+                                    as you do not have access to the others.
+                                {% endif %}
+                            {% else %}
+                                This recipe is alive but it is currently not run on any instances.
+                                {% if instances|length > 0 %}
+                                    You can run this recipe using "more settings" on the bottom of this page.
+                                {% else %}
+                                    Unfortunately you do have permissions to run this recipe on any instances.
+                                {% endif %}
+                            {% endif %}
+                        {% else %}
+                            This recipe is currently <em>not running</em>.
+                            However, it has produced some logs (and probably also some data) in the past.
+                        {% endif %}
+                        {% if recipe.runs|length > 0 %}
+                            In total, it has run {{ recipe.runs|length }} times.
+                            {% if recipe.cookies %}
+                                You may want to take a look at the
+                                <a href="#modal_cookies" data-toggle="modal">currently stored cookies</a>.
+                            {% endif %}
+                        {% else %}
+                            It has never been run so far.
+                        {% endif %}
+                        The owner of this recipe
+                        {% if recipe.owner == current_user %}
+                            are you.
+                        {% else %}
+                            is {{ recipe.owner.name }}.
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card mt-4 shadow-sm">
+                    <div class="card-body">
+                        <h5>Multiple versions needed?</h5>
+                        <p>
+                            You can easily <a href="{{ url_for('main.recipe_duplicate', recipe_uid=recipe.uid) }}"
+                            >create multiple copies</a> of this recipe without duplicating prior logs or data traces.
+                            Instead, only the recipe, its steps and associated configurations are copied.
+                            Choose whether you want to start running the newly copied recipes right away or not.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                {% if recipe.runs|length > 0 %}
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h5>The latest seven runs</h5>
+                        </div>
+                        <ul class="list-group list-group-flush runs" data-recipe="{{ recipe.uid }}"></ul>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="mb-5">
+            <h5>Recipe steps</h5>
+            {% if recipe.steps|length > 0 %}
+                <table class="table table-hover table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Type</th>
+                            <th scope="col">Value(s)</th>
+                            <th scope="col">Is active?</th>
+                            <th scope="col">&nbsp;</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for step in recipe.steps %}
+                            <tr>
+                                <th scope="row">{{ step.sort }}</th>
+                                <td>{{ step.type.name }}</td>
+                                <td>
+                                    {% if step.use_random_item_instead_of_value %}
+                                        {% if step.items|length == 0 %}
+                                            <em>Random pick, but no items configured.</em><br />
+                                            <a href="{{ url_for('main.item', recipe_uid=recipe.uid, step_uid=step.uid) }}">Add an item now</a>
+                                        {% else %}
+                                            <em>Random pick from one of these items:</em>
+                                            <ul>
+                                            {% for item in step.items %}
+                                                {% if loop.index <= 3 %}
+                                                    <li>{{ item.value }}</li>
+                                                {% elif loop.index == 4 %}
+                                                    <li>
+                                                        ...<br />
+                                                        <small class="text-muted">(edit step for full list)</small>
+                                                    </li>
+                                                {% endif %}
+                                            {% endfor %}
+                                            </ul>
+                                        {% endif %}
+                                    {% else %}
+                                        {{ step.value }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if step.active %}
+                                        yes
+                                    {% else %}
+                                        no
+                                    {% endif %}
+                                </td>
+                                <td class="text-right">
+                                    {% if not loop.last %}
+                                        <a href="{{ url_for('main.step_move', step_uid=step.uid, direction='down') }}"
+                                           title="move down" class="btn btn-sm btn-link">
+                                            <svg viewBox="0 0 32 32" width="24" height="24" fill="none" stroke-width="2"
+                                                 stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M6 22 L16 30 26 22 M16 30 L16 2"></path>
+                                            </svg>
+                                        </a>
+                                    {% endif %}
+                                    {% if loop.first %}
+                                        <span style="width:42px" class="d-inline-block">&nbsp;</span>
+                                    {% else %}
+                                        <a href="{{ url_for('main.step_move', step_uid=step.uid, direction='up') }}"
+                                           title="move up" class="btn btn-sm btn-link">
+                                            <svg viewBox="0 0 32 32" width="24" height="24" fill="none" stroke-width="2"
+                                                 stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M6 10 L16 2 26 10 M16 2 L16 30"></path>
+                                            </svg>
+                                        </a>
+                                    {% endif %}
+                                    <a href="{{ url_for('main.step', recipe_uid=recipe.uid, step_uid=step.uid) }}"
+                                       title="edit" class="btn btn-sm btn-link">
+                                        <svg viewBox="0 0 32 32" width="24" height="24" fill="none" stroke-width="2"
+                                             stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M30 7 L25 2 5 22 3 29 10 27 Z M21 6 L26 11 Z M5 22 L10 27 Z"></path>
+                                        </svg>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div class="text-right mt-2">
+                    <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('main.step', recipe_uid=recipe.uid) }}">Add new step</a>
+                </div>
+            {% else %}
+                <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('main.step', recipe_uid=recipe.uid) }}">Add first step</a>
+            {% endif %}
+        </div>
+    </div>
+    {% if recipe.cookies %}
+        <div class="modal" tabindex="-1" role="dialog" id="modal_cookies">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Cookies</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <ul class="list-group list-group-flush">
+                            {% for order in recipe.instances %}
+                                <li class="list-group-item">
+                                    {{ order.instance.name }}:<br />
+                                    <textarea class="form-control d-block"
+                                              readonly>{{ order.cookies_from_last_run }}</textarea>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endif %}
+{% if recipe  %}
+    <a data-toggle="collapse"
+       href="#settings"
+       aria-expanded="false"
+       aria-controls="settings"
+       class="border-top py-2 d-block text-center">More settings</a>
+    <div class="collapse" id="settings">
+{% else %}
+    <div class="my-2">
+{% endif %}
+<form action="" method="post" class="form mb-4" role="form">
+    <div class="row">
+        <div class="col-5">
+            <h5>General recipe info</h5>
+            {{ form.hidden_tag() }}
+            {{ wtf.form_field(form.name) }}
+            {{ wtf.form_field(form.description) }}
+            {{ wtf.form_field(form.interval) }}
+            {{ wtf.form_field(form.cookies) }}
+            {{ wtf.form_field(form.active) }}
+        </div>
+        <div class="col-6 offset-1">
+            <h5>Instances to run the recipe</h5>
+            <ul class="list-group list-group-flush">
+                {% if instances|length > 0 %}
+                    {% for instance in instances %}
+                        <li class="list-group-item form-check">
+                            <label class="form-check-label d-block">
+                                {% if instance.active %}
+                                    <input class="form-check-input" name="instance_{{ instance.uid }}"
+                                           type="checkbox" value="y" checked>
+                                {% else %}
+                                    <input class="form-check-input" name="instance_{{ instance.uid }}"
+                                           type="checkbox" value="y">
+                                {% endif %}
+                                {{ instance.name }}
+                            </label>
+                        </li>
+                    {% endfor %}
+                {% else %}
+                    <li class="list-group-item disabled">No instances available</li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+    <div class="text-right">
+        {{ wtf.form_field(form.submit) }}
+    </div>
+</form>
+</div>
+{% endblock %}
