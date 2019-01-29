@@ -108,12 +108,13 @@ def setup_config():
     config.add_value('Database', 'Database', read_forcefully('- Database: Database Name', 'scrapebot'))
     print('(2) Next, we need to specify this very instance.')
     config.add_value('Instance', 'Name', read_forcefully('- Instance name'))
-    print('(3) This instance also runs a certain browser. Assuming that you have installed all prerequisites, ' +
-          'we need to configure what kind of browser this instance will run.')
+    print('(3) Assuming you have installed all necessary prerequisites, what browser will this instance run.')
     browser = read_forcefully('- Browser', 'Firefox')
     config.add_value('Instance', 'Browser', browser)
     if read_bool_forcefully('- Do you want to specify the path to ' + browser + '\'s binary'):
         config.add_value('Instance', 'BrowserBinary', read_forcefully('- Path to binary'))
+    if read_bool_forcefully('- Do you want to change this browser\'s default user-agent string'):
+        config.add_value('Instance', 'BrowserUserAgent', read_forcefully('- Full user-agent string'))
     config.add_value('Instance', 'BrowserWidth', read_numeric_forcefully('- Browser width [in pixel]', 1024))
     config.add_value('Instance', 'BrowserHeight', read_numeric_forcefully('- Browser height [in pixel]', 768))
     print('(4) Also, to simulate human surf behavior, this instance introduces random delays. ' +

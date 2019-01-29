@@ -85,6 +85,7 @@ class Emulator:
         from scrapebot.database import Log, LogTypeEnum
         browser = config.config.get('Instance', 'browser', fallback='Firefox')
         executable = config.config.get('Instance', 'BrowserBinary', fallback='')
+        user_agent = config.config.get('Instance', 'BrowserUserAgent', fallback='')
         try:
             browser_width = int(config.config.get('Instance', 'BrowserWidth', fallback=1024))
             browser_height = int(config.config.get('Instance', 'BrowserHeight', fallback=768))
@@ -101,11 +102,16 @@ class Emulator:
                     gecko = 'lib/geckodriver-linux' + gecko
                 else:
                     gecko = 'lib/geckodriver-win' + gecko + '.exe'
+                profile = webdriver.FirefoxProfile()
+                if user_agent != '':
+                    profile.set_preference('general.useragent.override', user_agent)
                 if executable == '':
-                    self.__selenium = webdriver.Firefox(executable_path=gecko)
+                    self.__selenium = webdriver.Firefox(firefox_profile=profile, executable_path=gecko)
                     run.log.append(Log(message='Browser instance set to Firefox with Geckodriver "' + gecko + '"'))
                 else:
-                    self.__selenium = webdriver.Firefox(executable_path=gecko, firefox_binary=FirefoxBinary(executable))
+                    self.__selenium = webdriver.Firefox(firefox_profile=profile,
+                                                        executable_path=gecko,
+                                                        firefox_binary=FirefoxBinary(executable))
                     run.log.append(Log(message='Browser instance set to Firefox with Geckodriver "' + gecko +
                                                '" and executable path "' + executable + '"'))
             elif browser == 'Chrome':
@@ -114,7 +120,10 @@ class Emulator:
                         executable = 'lib/chromedriver-linux'
                     else:
                         executable = 'lib/chromedriver-win.exe'
-                self.__selenium = webdriver.Chrome(executable_path=executable)
+                options = webdriver.ChromeOptions()
+                if user_agent != '':
+                    options.add_argument('--user-agent=' + user_agent)
+                self.__selenium = webdriver.Chrome(executable_path=executable, chrome_options=options)
                 run.log.append(Log(message='Browser instance set to Chrome with ChromeDriver "' + executable + '"'))
             else:
                 webdriver_class = getattr(webdriver, browser)
@@ -130,6 +139,8 @@ class Emulator:
                                        str(browser_height) + ' pixel'))
             self.__timeout = float(config.config.get('Instance', 'Timeout', fallback=0))
             run.log.append(Log(message='Browser timeout set to ' + str(self.__timeout) + ' seconds'))
+            user_agent = self.__selenium.execute_script('return navigator.userAgent')
+            run.log.append(Log(message='User agent for this session is "' + user_agent + '"'))
             return True
         except WebDriverException:
             run.log.append(Log(message='Browser instance "' + browser + '" not found', type=LogTypeEnum.error))
@@ -139,9 +150,8 @@ class Emulator:
                 run.log.append(Log(message=traceback.format_exc(), type=LogTypeEnum.error))
             return False
         except:
-            error = sys.exc_info()[0]
-            if error is not None:
-                run.log.append(Log(message=str(error).strip('<>'), type=LogTypeEnum.error))
+            if sys.exc_info()[2] is not None:
+                run.log.append(Log(message=traceback.format_exc(), type=LogTypeEnum.error))
             return False
 
     def close_session(self, run):
