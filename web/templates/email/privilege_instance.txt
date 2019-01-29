@@ -1,0 +1,18 @@
+Hi {{ user.name }},
+
+you have been granted access by {{ instance.owner.name }} to the following instance:
+
+> {{ instance.name }}
+> {{ url_for('main.instance', instance_uid=instance.uid, _external=True) }}
+{% if privilege.allowed_to_edit %}
+You are also allowed to edit this instance.{% endif %}
+
+Kind regards,
+ScrapeBot
+
+
+P.S.: Do not answer to this email as it won't be read by anybody. In case of questions, reach out to Mario Haim <mario@haim.it>.
+
+--
+https://scrapebot.haim.it
+ScrapeBot was built and is maintained by Mario Haim (https://haim.it).

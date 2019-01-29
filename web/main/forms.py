@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, BooleanField, SelectField, IntegerField
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, Email
 from scrapebot.emulate import RecipeStepTypeEnum
 
 
@@ -39,3 +39,9 @@ class InstanceForm(FlaskForm):
     name = StringField('Instance name')
     description = TextAreaField('Description')
     submit = SubmitField('Save')
+
+
+class PrivilegeForm(FlaskForm):
+    email = StringField('Email address', validators=[DataRequired(), Email()])
+    allowed_to_edit = BooleanField('Allow editing')
+    submit = SubmitField('Add privilege')

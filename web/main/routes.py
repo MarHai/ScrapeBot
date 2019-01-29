@@ -1,10 +1,11 @@
 from datetime import date
 from flask import render_template, flash, redirect, url_for, request
 from scrapebot.database import *
-from web import db
+from web import db, mail
 from flask_login import current_user, login_required
+from flask_mail import Message
 from web.main import bp
-from web.main.forms import RecipeForm, RecipeDuplicateForm, RecipeStepForm, RecipeStepItemForm, InstanceForm
+from web.main.forms import *
 
 
 @bp.route('/')
@@ -28,13 +29,41 @@ def instance(instance_uid):
         for privilege in current_user.recipe_privileges:
             if privilege.allowed_to_edit:
                 user_recipes.append(privilege.recipe)
+        form_privilege = PrivilegeForm()
+        if form_privilege.validate_on_submit() and form_privilege.email.data:
+            if temp_instance.owner_uid is current_user.uid:
+                temp_user = db.session.query(User).filter(User.email == form_privilege.email.data).first()
+                if temp_user is None or temp_user is temp_instance.owner:
+                    flash('User not found')
+                else:
+                    temp_privilege = db.session.query(UserInstancePrivilege)\
+                        .filter(UserInstancePrivilege.user == temp_user, UserInstancePrivilege.instance == temp_instance)\
+                        .first()
+                    if temp_privilege is None:
+                        temp_privilege = UserInstancePrivilege(user=temp_user,
+                                                               allowed_to_edit=form_privilege.allowed_to_edit.data)
+                        temp_instance.privileged_users.append(temp_privilege)
+                    elif not temp_privilege.allowed_to_edit and form_privilege.allowed_to_edit.data:
+                        temp_privilege.allowed_to_edit = True
+                    else:
+                        flash('Access already granted')
+                        return redirect(url_for('main.instance', instance_uid=instance_uid))
+                    db.session.commit()
+                    msg = Message('Access to new ScrapeBot instance granted', sender='ScrapeBot <scrapebot@haim.it>',
+                                  recipients=[temp_user.email])
+                    msg.body = render_template('email/privilege_instance.txt',
+                                               user=temp_user, instance=temp_instance, privilege=temp_privilege)
+                    mail.send(msg)
+                    flash('Privilege added and user informed via email')
+            else:
+                flash('You are not allowed to do this as only an instance\'s owner can permit privileges')
+            return redirect(url_for('main.instance', instance_uid=instance_uid))
         form = InstanceForm()
         if form.validate_on_submit():
             temp_instance.description = form.description.data
             for temp_recipe in user_recipes:
                 temp_order = db.session.query(RecipeOrder).filter(RecipeOrder.recipe == temp_recipe,
                                                                   RecipeOrder.instance == temp_instance).first()
-                print(temp_order)
                 if request.form.get('recipe_' + str(temp_recipe.uid)) is 'y':
                     if temp_order is None:
                         temp_recipe.instances.append(RecipeOrder(instance=temp_instance))
@@ -42,21 +71,43 @@ def instance(instance_uid):
                     db.session.delete(temp_order)
             db.session.commit()
             return redirect(url_for('main.instance', instance_uid=instance_uid))
-        else:
-            recipes = []
-            form.name.data = temp_instance.name
-            form.description.data = temp_instance.description
-            for temp_recipe in user_recipes:
-                recipes.append({
-                    'uid': temp_recipe.uid,
-                    'name': temp_recipe.name,
-                    'interval': temp_recipe.interval,
-                    'active': temp_instance.runs_recipe(temp_recipe, False),
-                    'recipe_active': temp_recipe.active
-                })
-            return render_template('main/instance.html', instance=temp_instance, form=form, recipes=recipes)
+        privileged_users = []
+        recipes = []
+        form.name.data = temp_instance.name
+        form.description.data = temp_instance.description
+        for temp_recipe in user_recipes:
+            recipes.append({
+                'uid': temp_recipe.uid,
+                'name': temp_recipe.name,
+                'interval': temp_recipe.interval,
+                'active': temp_instance.runs_recipe(temp_recipe, False),
+                'recipe_active': temp_recipe.active
+            })
+        if temp_instance.owner_uid == current_user.uid:
+            for temp_privilege in temp_instance.privileged_users:
+                privileged_users.append(temp_privilege.jsonify())
+        return render_template('main/instance.html', instance=temp_instance, form=form, recipes=recipes,
+                               form_privilege=form_privilege, privileged_users=privileged_users)
     flash('You do not have the permission to view this instance.')
     return render_template('main/dashboard.html')
+
+
+@bp.route('/instance/<instance_uid>/remove_privilege/<privilege_uid>')
+@login_required
+def instance_remove_privilege(instance_uid, privilege_uid):
+    temp_instance = db.session.query(Instance).filter(Instance.uid == int(instance_uid)).first()
+    if temp_instance.owner_uid == current_user.uid:
+        temp_privilege = db.session.query(UserInstancePrivilege)\
+            .filter(UserInstancePrivilege.uid == int(privilege_uid)).first()
+        if temp_privilege is None:
+            flash('Privilege not found')
+        else:
+            db.session.delete(temp_privilege)
+            db.session.commit()
+            flash('Privilege removed successfully')
+    else:
+        flash('You do not have the permission to edit privileges on this instance.')
+    return redirect(url_for('main.instance', instance_uid=instance_uid))
 
 
 @bp.route('/recipe', methods=['GET', 'POST'], defaults={'recipe_uid': None})
@@ -74,7 +125,7 @@ def recipe(recipe_uid):
         if privilege.allowed_to_edit:
             instances.append(privilege.instance)
     form = RecipeForm()
-    if form.validate_on_submit():
+    if form.validate_on_submit() and form.name.data:
         if recipe_uid is None:
             temp_recipe = Recipe()
         temp_recipe.name = form.name.data
@@ -102,8 +153,44 @@ def recipe(recipe_uid):
                 .order_by(Recipe.created.desc()).first()
             recipe_uid = temp_recipe.uid
         return redirect(url_for('main.recipe', recipe_uid=recipe_uid))
+    form_privilege = PrivilegeForm()
+    if form_privilege.validate_on_submit() and form_privilege.email.data:
+        if temp_recipe.owner_uid is current_user.uid:
+            temp_user = db.session.query(User).filter(User.email == form_privilege.email.data).first()
+            if temp_user is None or temp_user is temp_recipe.owner:
+                flash('User not found')
+            else:
+                temp_privilege = db.session.query(UserRecipePrivilege)\
+                    .filter(UserRecipePrivilege.user == temp_user, UserRecipePrivilege.recipe == temp_recipe)\
+                    .first()
+                if temp_privilege is None:
+                    temp_privilege = UserRecipePrivilege(user=temp_user, allowed_to_edit=form_privilege.allowed_to_edit.data)
+                    temp_recipe.privileged_users.append(temp_privilege)
+                elif not temp_privilege.allowed_to_edit and form_privilege.allowed_to_edit.data:
+                    temp_privilege.allowed_to_edit = True
+                else:
+                    flash('Access already granted')
+                    return redirect(url_for('main.recipe', recipe_uid=recipe_uid))
+                db.session.commit()
+                msg = Message('Access to new ScrapeBot recipe granted', sender='ScrapeBot <scrapebot@haim.it>',
+                              recipients=[temp_user.email])
+                msg.body = render_template('email/privilege_recipe.txt',
+                                           user=temp_user, recipe=temp_recipe, privilege=temp_privilege)
+                mail.send(msg)
+                flash('Privilege added and user informed via email')
+        else:
+            flash('You are not allowed to do this as only a recipe\'s owner can permit privileges')
+        return redirect(url_for('main.recipe', recipe_uid=recipe_uid))
     user_instances = []
-    if temp_recipe is not None:
+    privileged_users = []
+    if temp_recipe is None:
+        for temp_instance in instances:
+            user_instances.append({
+                'uid': temp_instance.uid,
+                'name': temp_instance.name,
+                'active': False
+            })
+    else:
         form.name.data = temp_recipe.name
         form.description.data = temp_recipe.description
         form.interval.data = temp_recipe.interval
@@ -115,14 +202,29 @@ def recipe(recipe_uid):
                 'name': temp_instance.name,
                 'active': temp_instance.runs_recipe(temp_recipe, False)
             })
+        if temp_recipe.owner_uid == current_user.uid:
+            for temp_privilege in temp_recipe.privileged_users:
+                privileged_users.append(temp_privilege.jsonify())
+    return render_template('main/recipe.html', form=form, instances=user_instances, recipe=temp_recipe,
+                           form_privilege=form_privilege, privileged_users=privileged_users)
+
+
+@bp.route('/recipe/<recipe_uid>/remove_privilege/<privilege_uid>')
+@login_required
+def recipe_remove_privilege(recipe_uid, privilege_uid):
+    temp_recipe = db.session.query(Recipe).filter(Recipe.uid == int(recipe_uid)).first()
+    if temp_recipe.owner_uid == current_user.uid:
+        temp_privilege = db.session.query(UserRecipePrivilege)\
+            .filter(UserRecipePrivilege.uid == int(privilege_uid)).first()
+        if temp_privilege is None:
+            flash('Privilege not found')
+        else:
+            db.session.delete(temp_privilege)
+            db.session.commit()
+            flash('Privilege removed successfully')
     else:
-        for temp_instance in instances:
-            user_instances.append({
-                'uid': temp_instance.uid,
-                'name': temp_instance.name,
-                'active': False
-            })
-    return render_template('main/recipe.html', form=form, instances=user_instances, recipe=temp_recipe)
+        flash('You do not have the permission to edit privileges on this recipe.')
+    return redirect(url_for('main.recipe', recipe_uid=recipe_uid))
 
 
 @bp.route('/recipes/multiple/<recipe_uids>', defaults={'deactivate': 0})

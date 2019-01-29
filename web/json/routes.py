@@ -77,7 +77,7 @@ def runs(recipe_uid, instance_uid, page):
         temp_runs = temp_runs.filter(Run.recipe_uid == int(recipe_uid))
     if int(instance_uid) > 0:
         temp_runs = temp_runs.filter(Run.instance_uid == int(instance_uid))
-    temp_runs = temp_runs.order_by(Run.created.desc()).paginate(int(page), 7, error_out=False)
+    temp_runs = temp_runs.order_by(Run.created.desc()).paginate(int(page), 10, error_out=False)
     for temp_run in temp_runs.items:
         if temp_run.recipe.is_visible_to_user(current_user) and temp_run.instance.is_visible_to_user(current_user):
             data.append(temp_run.jsonify())
