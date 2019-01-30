@@ -42,6 +42,7 @@ Installation varies depending on your operating system. The most common way to u
     ```
     python3 setup.py
     ```
+    By the way, in running ```setup.py```, also on an already running instance, you can easily create new users.
 
 ## 3. Installing the web frontend
 By following the installation guidelines from above, you have also installed all the prerequisites for the web frontend. Despite these prerequisites, though, no web server is yet in place to serve it. This is only required on one instance, obviously, and it can even run on a separate machine without the instance being run regularly. Wherever it may be, here is a short installation guide for the web frontend (again, after (!) you have successfully finished setting up the above).

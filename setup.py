@@ -28,20 +28,20 @@ def main():
     users = db.query(User).order_by(User.created).all()
     user: User = None
     if len(users) == 0:
-        print('- the database currently does not contain any users, so we will create one')
+        print('- the database currently does not contain any users, so we will create a default one')
         username = read_forcefully('- what name should this user listen to', 'root')
         email = read_forcefully('- and what is this user\'s email address')
-        root = User(name=username, email=email)
-        password = root.create_password()
-        db.add(root)
-        db.commit()
-        user = db.query(User).filter(User.name == username).one()
-        print('- default user ("' + username + '" with password "' + password + '", without quotes) created')
+        user = create_user(db, username, email)
     else:
         print('- one or many users available')
         user = db.query(User).filter(User.name == 'root').first()
         if user is None:
             user = users[0]
+
+    while read_bool_forcefully('Do you want to create another user'):
+        username = read_forcefully('- what name should this user listen to')
+        email = read_forcefully('- and what is this user\'s email address')
+        create_user(db, username, email)
 
     print('Checking this instance')
     this_instance = db.query(Instance).filter(Instance.name == instance_name)
@@ -82,6 +82,22 @@ def main():
         print('- to run it regularly (which is what you want), you may want to use Windows Task Scheduler or the like')
     print('---------')
     print('Thanks for using; please direct any questions and pull requests to https://github.com/marhai/scrapebot')
+
+
+def create_user(db, username, email):
+    email = email.lower()
+    user = db.query(User).filter(User.email == email).first()
+    if user is None:
+        temp_user = User(name=username, email=email)
+        password = temp_user.create_password()
+        db.add(temp_user)
+        db.commit()
+        user = db.query(User).filter(User.email == email).one()
+        print('- user "' + user.name + '" with password "' + password + '" (no quotes) created')
+        return user
+    else:
+        print('- a user with this email address already exists so no new user was created')
+        return user
 
 
 def get_config(create_if_necessary=True):
