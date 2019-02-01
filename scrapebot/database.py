@@ -453,7 +453,7 @@ class Log(base):
     uid = Column(Integer, primary_key=True)
     created = Column(DateTime, default=func.now())
     type = Column(Enum(LogTypeEnum), default=LogTypeEnum.info)
-    message = Column(String(256))
+    message = Column(Text)
     run_uid = Column(Integer, ForeignKey('run.uid'))
     run = relationship(Run, back_populates='log')
 
