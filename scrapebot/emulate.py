@@ -7,6 +7,7 @@ import random
 import platform
 import traceback
 from pyvirtualdisplay import Display
+# https://selenium-python.readthedocs.io
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException, NoSuchElementException
 from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
@@ -99,7 +100,12 @@ class Emulator:
             if browser == 'Firefox':
                 gecko = '32' if platform.architecture()[0].startswith('32') else '64'
                 if platform.system() == 'Linux':
-                    gecko = 'lib/geckodriver-linux' + gecko
+                    if platform.machine().lower().startswith('arm'):
+                        gecko = 'lib/geckodriver-arm-v0.23'
+                    else:
+                        gecko = 'lib/geckodriver-linux' + gecko
+                elif platform.system() == 'Darwin':
+                    gecko = 'lib/geckodriver-macos'
                 else:
                     gecko = 'lib/geckodriver-win' + gecko + '.exe'
                 profile = webdriver.FirefoxProfile()
@@ -118,6 +124,8 @@ class Emulator:
                 if executable == '':
                     if platform.system() == 'Linux':
                         executable = 'lib/chromedriver-linux'
+                    elif platform.system() == 'Darwin':
+                        executable = 'lib/chromedriver-macos'
                     else:
                         executable = 'lib/chromedriver-win.exe'
                 options = webdriver.ChromeOptions()
