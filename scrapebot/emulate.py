@@ -123,7 +123,10 @@ class Emulator:
             elif browser == 'Chrome':
                 if executable == '':
                     if platform.system() == 'Linux':
-                        executable = 'lib/chromedriver-linux'
+                        if platform.machine().lower().startswith('arm'):
+                            executable = 'lib/chromedriver-arm'
+                        else:
+                            executable = 'lib/chromedriver-linux'
                     elif platform.system() == 'Darwin':
                         executable = 'lib/chromedriver-macos'
                     else:
@@ -152,10 +155,6 @@ class Emulator:
             return True
         except WebDriverException:
             run.log.append(Log(message='Browser instance "' + browser + '" not found', type=LogTypeEnum.error))
-            return False
-        except TypeError:
-            if sys.exc_info()[2] is not None:
-                run.log.append(Log(message=traceback.format_exc(), type=LogTypeEnum.error))
             return False
         except:
             if sys.exc_info()[2] is not None:

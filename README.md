@@ -15,6 +15,7 @@ There is actually not much to do here apart from installing a MySQL server somew
 ## 2. Installing a new Instance
 Installation varies depending on your operating system. The most common way to use it, though, would be on a *nix server, such as one from Amazon's Web Services (AWS). Hence, this installation tutorial is geared toward that, although ScrapeBot can also run under other operating systems, including Windows.
 
+#### Installing on Linux/Unix
 1. The easiest server version to get started with is a 64-bit Ubuntu [EC2 instance](https://aws.amazon.com), such as AWS' "Ubuntu Server 18.04 LTS" free tier. Launch that and SSH into it.
 1. Update the available package-manager repositories. Afterwards, we need to install four things:
     - PIP for the 3.x [Python](https://www.python.org/downloads/) environment
@@ -43,6 +44,23 @@ Installation varies depending on your operating system. The most common way to u
     python3 setup.py
     ```
     By the way, in running ```setup.py```, also on an already running instance, you can easily create new users.
+
+#### Installing on Windows
+Should work fine but keep in mind to either have your preferred browser set in your PATH environment or to specify the paths to your executables in the ```Instance``` section of your ```config.ini```, like so:
+```
+BrowserBinary = C:\Program Files\Mozilla Firefox\firefox.exe
+```
+or
+```
+BrowserBinary = C:\Program Files (x86)\Google\Chrome\Application\chrome.exe
+```
+
+#### Installing on a Raspberry Pi (2B+)
+Currently available Firefox versions mismatch currently available Geckodriver versions for ARM systems, such as Raspberry Pi. In other words, as long as ```apt-get install firefox-esr``` results in versions below 57, do not bother.
+
+Instead, you can use Chrome. This is in spite of the fact that the therefore needed Chromedriver is a bit old (as Chrome has stopped deploying it for ARM systems) and is thus not capable of taking screenshots.
+
+***tl;dr**:* *Use Chrome but do not take screenshots.* 
 
 ## 3. Installing the web frontend
 By following the installation guidelines from above, you have also installed all the prerequisites for the web frontend. Despite these prerequisites, though, no web server is yet in place to serve it. This is only required on one instance, obviously, and it can even run on a separate machine without the instance being run regularly. Wherever it may be, here is a short installation guide for the web frontend (again, after (!) you have successfully finished setting up the above).
