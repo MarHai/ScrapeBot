@@ -26,8 +26,14 @@ class RecipeStepTypeEnum(enum.Enum):
     find_by_css = '| Find one or many element(s) using a more sophisticated CSS selector as provided in "value"'
     find_by_xpath = '| Find one or many element(s) using a more sophisticated XPath selector as provided in "value"'
 
+    random_select = '| Randomly select one element of the ones that have been identified in the previous step'
+
+    scroll_to = '| Scroll the page for "value" pixels (or the page bottom, if not specified) with random breaks'
+    pause = '| Wait for value seconds (+/- 25% to introduce some randomness)'
     click = '-> Click on the element which has been identified in the previous step'
     write = '. Write "value" onto the element which has been identified in the previous step'
+    write_slowly = '. Write "value" slowly (i.e., character by character, pausing in between, like slow typing) ' \
+                   'onto the the element which has been identified in the previous step'
     submit = '-> Submit on the element which has been identified in the previous step'
 
     get_text = '<- Store the text of the first element which has been identified in the previous step as data'
@@ -40,6 +46,7 @@ class RecipeStepTypeEnum(enum.Enum):
                      'identified in the previous step as data'
     get_pagetitle = '<- Store the page title as data'
     get_element_count = '<- Store the number of previously found elements as data'
+    get_htmlsource = '<- Store the complete HTML source code (WARNING: huuuge amount of data; handle with great care)'
 
     log = '. Simply log "value" into the log file'
     data = '. Store "value" as data entry'
@@ -48,6 +55,11 @@ class RecipeStepTypeEnum(enum.Enum):
     go_forward = '-> Go forward one step in the browser history (only available if you went back before)'
     unset_prior_element = '. Remove any previously retrieved element (which could cause error upon further navigation)'
     screenshot = '. Take a screenshot of the whole page as PNG file'
+    element_screenshot = '. Take a screenshot of the element which has been identified in the previous step as PNG file'
+
+    # @todo: add step type for screenshots to be taken only in some cases (e.g., every 10th run)?
+    # @todo: allow steps to be grouped (through parent steps) and randomly choose one or all steps within a group
+
 
     @classmethod
     def choices(cls):
@@ -152,6 +164,9 @@ class Emulator:
             run.log.append(Log(message='Browser timeout set to ' + str(self.__timeout) + ' seconds'))
             user_agent = self.__selenium.execute_script('return navigator.userAgent')
             run.log.append(Log(message='User agent for this session is "' + user_agent + '"'))
+
+            # @todo add settings for language and encoding
+
             return True
         except WebDriverException:
             run.log.append(Log(message='Browser instance "' + browser + '" not found', type=LogTypeEnum.error))
@@ -229,6 +244,11 @@ class Emulator:
                 prior_step.temp_result = None
                 step.temp_result = None
                 run.log.append(Log(message='Removed previously retrieved element as it may disappear after submit'))
+        elif step.type.name == 'pause':
+            pause = int(step.value)
+            pause = random.uniform(pause*.75, pause*1.25)
+            time.sleep(pause)
+            run.log.append(Log(message='Paused for ' + str(round(pause, 1)) + ' seconds'))
         elif step.type.name == 'write':
             element = self.__get_first_elem_or_none(prior_step.temp_result)
             if element is None:
@@ -236,6 +256,35 @@ class Emulator:
             else:
                 element.send_keys(step.value)
                 run.log.append(Log(message='Typed "' + step.value + '" on previously retrieved element'))
+        elif step.type.name == 'write_slowly':
+            element = self.__get_first_elem_or_none(prior_step.temp_result)
+            if element is None:
+                run.log.append(Log(message='No element available for typing', type=LogTypeEnum.warning))
+            else:
+                for char in step.value:
+                    element.send_keys(char)
+                    time.sleep(random.uniform(0.1, 1))
+                run.log.append(Log(message='Typed "' + step.value + '" very slowly on previously retrieved element'))
+        elif step.type.name == 'scroll_to':
+            scroll_to = -1
+            try:
+                scroll_to = int(step.value)
+                if scroll_to == 0:
+                    raise ValueError
+                run.log.append(Log(message='Scrolling for ' + str(scroll_to) + ' pixels'))
+            except ValueError:
+                scroll_to = -1
+                run.log.append(Log(message='Scrolling to the bottom of the page'))
+            scroll_step = 10 if scroll_to > 10 or scroll_to == -1 else scroll_to
+            scroll_js = 'function scroll_and_wait(step, scrolled, last_pos, limit) {' \
+                'if(window.pageYOffset > last_pos && (scrolled <= limit || limit < 0)) {' + \
+                'last_pos = window.pageYOffset;' + \
+                'window.scrollBy(0, step);' + \
+                'setTimeout(scroll_and_wait, 20, step, (scrolled+step), last_pos, limit);' + \
+                '}' + \
+                '}' + \
+                'scroll_and_wait(' + str(scroll_step) + ', 0, -1, ' + str(scroll_to) + ')'
+            self.__selenium.execute_script(scroll_js)
         elif step.type.name == 'go_back':
             self.__selenium.back()
             run.log.append(Log(message='Navigated back one page'))
@@ -255,6 +304,16 @@ class Emulator:
             run.data.append(Data(step=step, value=screenshot_name))
             run.log.append(Log(message='Screenshot stored as "' + screenshot_name + '" into "' +
                                        self.__screenshot_directory + '" and referenced as data'))
+        elif step.type.name == 'element_screenshot':
+            element = self.__get_first_elem_or_none(prior_step.temp_result)
+            if element is None:
+                run.log.append(Log(message='No element available to screenshot', type=LogTypeEnum.warning))
+            else:
+                screenshot_name = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '.png'
+                element.screenshot(self.__screenshot_directory + screenshot_name)
+                run.data.append(Data(step=step, value=screenshot_name))
+                run.log.append(Log(message='Element screenshot stored as "' + screenshot_name + '" into "' +
+                                           self.__screenshot_directory + '" and referenced as data'))
         elif step.type.name == 'find_by_id':
             try:
                 step.temp_result = self.__selenium.find_element_by_id(step.value)
@@ -347,6 +406,27 @@ class Emulator:
                 run.data.append(Data(step=step, value='0'))
                 run.log.append(Log(message='No element from XPath "' + step.value + '" found (stored 0 as data)',
                                    type=LogTypeEnum.warning))
+        elif step.type.name == 'random_select':
+            if prior_step.temp_result is None:
+                run.log.append(Log(message='No element from previous step found, hence no element randomly selected',
+                                   type=LogTypeEnum.warning))
+            elif isinstance(prior_step.temp_result, list):
+                count = len(prior_step.temp_result)
+                if count > 0:
+                    i = random.randint(0, count-1)
+                    step.temp_result = prior_step.temp_result[i]
+                    run.data.append(Data(step=step, value=(i+1)))
+                    run.log.append(Log(message='Randomly selected element ' + str(i+1) + '/' + str(count) +
+                                               ' (stored ' + str(i+1) + ' as data)'))
+                else:
+                    run.log.append(
+                        Log(message='No element from previous step found, hence no element randomly selected',
+                            type=LogTypeEnum.warning)
+                    )
+            else:
+                step.temp_result = prior_step.temp_result
+                run.data.append(Data(step=step, value='0'))
+                run.log.append(Log(message='Only one element from previous step found, so this was selected "randomly"'))
         elif step.type.name == 'get_text':
             element = self.__get_first_elem_or_none(prior_step.temp_result)
             if element is None:
@@ -405,6 +485,12 @@ class Emulator:
             value = self.__selenium.title
             run.data.append(Data(step=step, value=value))
             run.log.append(Log(message='Retrieved and stored page title "' + value + '"'))
+        elif step.type.name == 'get_htmlsource':
+            value = self.__selenium.execute_script('return typeof(XMLSerializer) === \'undefined\' ? ' +
+                                                   'document.body.parentElement.innerHTML : ' +
+                                                   'new XMLSerializer().serializeToString(document)')
+            run.data.append(Data(step=step, value=value))
+            run.log.append(Log(message='Retrieved and stored HTML source code'))
         elif step.type.name == 'unset_prior_element':
             if step.temp_result is not None:
                 prior_step.temp_result = None
