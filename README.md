@@ -95,7 +95,11 @@ This section holds only four options, all aimed at connecting to the central dat
 - **Host** is the central database host to connect to.
 - **User** must hold the username to connect to the central database.
 - **Password** holds, well, the according password.
-- Lastly, **Database** represents the database name. Small side note here: The step-by-step wizard Python script (i.e., ```setup.py```) will generate tables and stuff if (and only if) they do not exist yet.
+- **Database** represents the database name. Small side note here: The step-by-step wizard Python script (i.e., ```setup.py```) will generate tables and stuff if (and only if) they do not exist yet.
+- Due to long runtimes for recipes, ScrapeBot sometimes struggles with MySQL server timeouts (at least, if servers close connections rather strictly). To overcome this problem, you may set **Timeout** here to a number of seconds after which the database connection should be automatically renewed. Best practice here, by the way, is to do nothing until you run into problems. If you do, however, check your MySQL server's timeout and set ScrapeBot's Database/Timeout setting to this exact same number: 
+  ```
+  SHOW SESSION VARIABLES LIKE 'wait_timeout';
+  ```
 ### Email
 The web frontend will send emails from time to time. So if you want an instance to serve as web frontend, you need to configure an SMTP server here for it to be able to actually send those emails.
 - Again, **Host** is the address of the SMTP (!) server.

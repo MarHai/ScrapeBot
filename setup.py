@@ -122,6 +122,12 @@ def setup_config():
     config.add_value('Database', 'User', read_forcefully('- Database: User', 'root'))
     config.add_value('Database', 'Password', read_forcefully('- Database: Password'))
     config.add_value('Database', 'Database', read_forcefully('- Database: Database Name', 'scrapebot'))
+    if read_bool_forcefully('- Recipes sometimes take their time. In case your MySQL server has short timeouts set, ' \
+                            'you may want ScrapeBot to renew database connections every now and then. Do you'):
+        print('- Okay, to check your MySQL server\'s timeout in seconds, you may run the following query:')
+        print('  SHOW SESSION VARIABLES LIKE \'wait_timeout\';')
+        config.add_value('Database', 'Timeout',
+                         read_numeric_forcefully('- Enter the number of seconds after which to renew the connection'))
     print('(2) Next, we need to specify this very instance.')
     config.add_value('Instance', 'Name', read_forcefully('- Instance name'))
     print('(3) Assuming you have installed all necessary prerequisites, what browser will this instance run.')
@@ -223,7 +229,12 @@ def check_minimal_config(config):
 
 
 def get_engine(config):
-    return create_engine(config.get_db_engine_string(), encoding='utf-8')
+    database_timeout = -1
+    try:
+        database_timeout = int(config.config.get('Database', 'Timeout', fallback=-1))
+    except:
+        database_timeout = -1
+    return create_engine(config.get_db_engine_string(), encoding='utf-8', pool_recycle=database_timeout)
 
 
 def get_db(engine):
