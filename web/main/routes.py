@@ -114,7 +114,7 @@ def instance_remove_privilege(instance_uid, privilege_uid):
 @bp.route('/recipe/<recipe_uid>', methods=['GET', 'POST'])
 @login_required
 def recipe(recipe_uid):
-    temp_recipe: Recipe = None
+    temp_recipe = None
     if recipe_uid is not None:
         temp_recipe = db.session.query(Recipe).filter(Recipe.uid == int(recipe_uid)).first()
         if not temp_recipe.is_visible_to_user(current_user):
@@ -254,7 +254,7 @@ def recipe_multiple_action(recipe_uids, deactivate):
 @bp.route('/recipe/<recipe_uid>/duplicate', methods=['GET', 'POST'])
 @login_required
 def recipe_duplicate(recipe_uid):
-    temp_recipe: Recipe = None
+    temp_recipe = None
     if recipe_uid is not None:
         temp_recipe = db.session.query(Recipe).filter(Recipe.uid == int(recipe_uid)).first()
         if not temp_recipe.is_editable_by_user(current_user):
@@ -339,7 +339,7 @@ def step(recipe_uid, step_uid):
     if not temp_recipe.is_visible_to_user(current_user):
         flash('You do not have the permission to view this recipe.')
         return redirect(url_for('main.dashboard'))
-    temp_step: RecipeStep = None
+    temp_step = None
     if step_uid is not None:
         temp_step = db.session.query(RecipeStep).filter(RecipeStep.uid == int(step_uid)).first()
         if not temp_step.recipe.is_visible_to_user(current_user):

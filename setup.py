@@ -26,7 +26,7 @@ def main():
         exit(3)
     print('- read tables: ' + ', '.join(base.metadata.tables.keys()))
     users = db.query(User).order_by(User.created).all()
-    user: User = None
+    user = None
     if len(users) == 0:
         print('- the database currently does not contain any users, so we will create a default one')
         username = read_forcefully('- what name should this user listen to', 'root')

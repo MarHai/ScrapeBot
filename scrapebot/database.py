@@ -133,7 +133,7 @@ class Instance(base):
         Fetch a list of active recipes which are actively ascribed to this instance.
         :return:
         """
-        recipes: List[Recipe] = list()
+        recipes = list()
         for recipe_order in self.recipes:
             if recipe_order.recipe.active:
                 recipes.append(recipe_order.recipe)
@@ -244,7 +244,7 @@ class Recipe(base):
         Fetch the ordered list of active steps from this recipe.
         :return:
         """
-        steps: List[RecipeStep] = list()
+        steps = list()
         for step in self.steps:
             if step.active:
                 steps.append(step)
