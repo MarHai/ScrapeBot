@@ -9,7 +9,7 @@ config = get_config(False)
 db = get_db(get_engine(config))
 
 this_instance_name = config.config.get('Instance', 'name')
-this_instance: Instance = None
+this_instance = None
 if this_instance_name == '' or db.query(Instance).filter(Instance.name == this_instance_name).count() == 0:
     print('Error: Instance not found')
     exit(1)
@@ -42,7 +42,7 @@ if len(recipes) > 0:
                 status = RunStatusEnum.in_progress
                 run = Run(instance=this_instance, recipe=recipe, status=status)
                 db.add(run)
-                prior_step: RecipeStep = None
+                prior_step = None
                 for step in steps:
                     try:
                         status = step.run(config, run, prior_step)
