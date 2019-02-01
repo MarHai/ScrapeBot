@@ -131,7 +131,7 @@
                     </thead>
                     <tbody>
                         {% for step in recipe.steps %}
-                            <tr>
+                            <tr{% if not step.active %} class="text-muted" title="This step is not active"{% endif %}>
                                 <th scope="row">{{ step.sort }}</th>
                                 <td>{{ step.type.name }}</td>
                                 <td>
@@ -155,7 +155,11 @@
                                             </ul>
                                         {% endif %}
                                     {% else %}
-                                        {{ step.value }}
+                                        {% if step.type.name == 'navigate' %}
+                                            <a href="{{ step.value }}" target="_blank">{{ step.value }}</a>
+                                        {% else %}
+                                            {{ step.value }}
+                                        {% endif %}
                                     {% endif %}
                                 </td>
                                 <td>
