@@ -249,9 +249,15 @@ $(function(){
                         (run.status == 'success' ? 'success' :
                             (run.status == 'in_progress' ? 'info' :
                                 (run.status == 'error' ? 'danger' : 'warning'))) + '"></li>');
-                    item.append('<a href="/json/run/' + run.uid + '" class="d-block">' +
-                        run.created + ' on ' + run.instance.name + (run.status == 'success' ? '' : (': ' + run.status))
-                        + '</a>');
+                    if(recipe_uid === null) {
+                        item.append('<a href="/json/run/' + run.uid + '" class="d-block">' +
+                            run.recipe.name + ' on ' + run.created + (run.status == 'success' ? '' : (': ' + run.status))
+                            + '</a>');
+                    } else {
+                        item.append('<a href="/json/run/' + run.uid + '" class="d-block">' +
+                            run.created + ' on ' + run.instance.name + (run.status == 'success' ? '' : (': ' + run.status))
+                            + '</a>');
+                    }
                     $(ul).append(item);
                 });
                 init_run_detail_view_handler();
