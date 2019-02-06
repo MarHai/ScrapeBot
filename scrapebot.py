@@ -1,10 +1,12 @@
 import sys
 import time
+from datetime import datetime
 from random import shuffle
 from setup import get_config, get_engine, get_db
 from scrapebot.database import *
 
 
+print('[' + str(datetime.now()) + '] ScrapeBot initiated (this is server time)')
 config = get_config(False)
 db = get_db(get_engine(config))
 
