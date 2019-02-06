@@ -39,7 +39,7 @@ Installation varies depending on your operating system. The most common way to u
     ```
     pip3 install -r requirements.txt
     ```
-1. That's it, we should be good to go. Hence, let's configure your newly created instance of the ScrapeBot by following the step-by-step wizard. On Linux, it will end by setting up a cronjob that runs every five minutes. On other systems, you need to ensure that yourself. 
+1. That's it, we should be good to go. Hence, let's configure your newly created instance of the ScrapeBot by following the step-by-step wizard. On Linux, it will end by setting up a cronjob that runs every two minutes. On other systems, you need to ensure that yourself. 
     ```
     python3 setup.py
     ```

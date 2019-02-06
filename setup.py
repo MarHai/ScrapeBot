@@ -74,7 +74,7 @@ def main():
             cron = CronTab(user=os_user)
             cron.remove_all(comment='ScrapeBot // ' + instance_name)
             cronjob = cron.new(command='cd ' + os.getcwd() + ' && ' + sys.executable +
-                                       ' scrapebot.py >> /var/log/scrapebot_cron.log',
+                                       ' scrapebot.py >> scrapebot_cron.log',
                                comment='ScrapeBot // ' + instance_name)
             cronjob.minute.every(2)
             cron.write()
