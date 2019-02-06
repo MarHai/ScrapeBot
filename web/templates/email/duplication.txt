@@ -1,0 +1,19 @@
+Hi {{ user.name }},
+{% if copies == 1 %}
+you have ordered the duplication of one copy of "{{ recipe.name }}", which is now finished.
+The recipe is {% if copied_active %}now active{% else %}not active at the moment{% endif %} {% if recipe.active == copied_active %}as is{% else %}, in contrast to{% endif %} {{ recipe.name }}.
+The newly created recipe has been duplicated {% if copied_privileges %}with{% else %}without{% endif %} user privileges and has {% if copied_instances == 0 %}not {% endif %}been applied to {% if copied_instances == 0 %}any{% else %}{{ copied_instances }}{% endif %} instance(s).
+{% else %}
+you have ordered the duplication of {{ copies }} copies of "{{ recipe.name }}", which is now finished.
+The {{ copies }} recipes are {% if copied_active %}now active{% else %}not active at the moment{% endif %} {% if recipe.active == copied_active %}as is{% else %}, in contrast to{% endif %} {{ recipe.name }}.
+The {{ copies }} newly created recipes have been duplicated {% if copied_privileges %}with{% else %}without{% endif %} user privileges and have {% if copied_instances == 0 %}not {% endif %}been applied to {% if copied_instances == 0 %}any{% else %}{{ copied_instances }}{% endif %} instance(s).
+{% endif %}
+Sincerely,
+ScrapeBot
+
+
+P.S.: Kindly note that this email sender is used for sending but not so much for reading.
+
+--
+https://scrapebot.haim.it
+ScrapeBot was built and is maintained by Mario Haim (https://haim.it).

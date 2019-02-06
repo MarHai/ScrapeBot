@@ -1,5 +1,6 @@
+from threading import Thread
 from datetime import date
-from flask import render_template, flash, redirect, url_for, request
+from flask import render_template, flash, redirect, url_for, request, current_app
 from scrapebot.database import *
 from web import db, mail
 from flask_login import current_user, login_required
@@ -268,48 +269,13 @@ def recipe_duplicate(recipe_uid):
     if form.validate_on_submit():
         copies = int(form.amount.data)
         if copies > 0:
-            instance_count = 0
-            for i in range(1, 1+copies):
-                new_recipe = Recipe(
-                    name=form.name.data.replace('%i', str(i)).replace('%n', str(copies)),
-                    description=form.description.data,
-                    active=form.active.data,
-                    cookies=temp_recipe.cookies,
-                    interval=temp_recipe.interval
-                )
-                for temp_step in temp_recipe.steps:
-                    new_step = RecipeStep(
-                        sort=temp_step.sort,
-                        type=temp_step.type,
-                        value=temp_step.value,
-                        use_random_item_instead_of_value=temp_step.use_random_item_instead_of_value,
-                        active=temp_step.active
-                    )
-                    for temp_item in temp_step.items:
-                        new_step.items.append(RecipeStepItem(value=temp_item.value))
-                    new_recipe.steps.append(new_step)
-                if form.user_privileges.data is True:
-                    new_recipe.owner = temp_recipe.owner
-                    for temp_privilege in temp_recipe.privileged_users:
-                        new_recipe.privileged_users.append(UserRecipePrivilege(
-                            user=temp_privilege.user,
-                            allowed_to_edit=temp_privilege.allowed_to_edit
-                        ))
-                else:
-                    new_recipe.owner = current_user
-                instance_count = 0
-                for temp_instance in instances:
-                    if request.form.get('instance_' + str(temp_instance.uid)) is 'y':
-                        instance_count = instance_count + 1
-                        new_recipe.instances.append(RecipeOrder(instance=temp_instance))
-                db.session.commit()
-            flash('Copied "' + temp_recipe.name + '" a total of ' + str(copies) + ' times ' +
-                  ('with' if form.user_privileges.data is True else 'without') + ' user privileges ' +
-                  (('and applied it to ' + str(instance_count)) if instance_count > 0 else 'but did not apply any') +
-                  ' instance(s). The ' + str(copies) + (' recipe is ' if copies is 1 else ' recipes are ') +
-                  ('now active' if form.active.data is True else 'not active at the moment') +
-                  (' as is' if form.active.data is temp_recipe.active else ', in contrast to') +
-                  ' the current recipe.')
+            Thread(
+                target=init_threaded_duplication,
+                args=(current_app._get_current_object(), current_user._get_current_object(),
+                      form, temp_recipe, instances, request.form)
+            ).start()
+            flash('Added "' + temp_recipe.name + '" to the queue to be copied a total of ' + str(copies) + ' times. ' +
+                  'As soon as it is ready, a notification will be sent to ' + current_user.email)
             return redirect(url_for('main.dashboard'))
         else:
             flash('Invalid number of copies to create')
@@ -329,6 +295,56 @@ def recipe_duplicate(recipe_uid):
             'active': temp_instance.runs_recipe(temp_recipe, False)
         })
     return render_template('main/recipe_copy.html', form=form, instances=user_instances, recipe=temp_recipe)
+
+
+def init_threaded_duplication(web, user, form, temp_recipe, instances, form_submitted):
+    with web.app_context():
+        temp_recipe = db.session.query(Recipe).filter(Recipe.uid == temp_recipe.uid).first()
+        copies = int(form.amount.data)
+        instance_count = 0
+        for i in range(1, 1 + copies):
+            new_recipe = Recipe(
+                name=form.name.data.replace('%i', str(i)).replace('%n', str(copies)),
+                description=form.description.data,
+                active=form.active.data,
+                cookies=temp_recipe.cookies,
+                interval=temp_recipe.interval
+            )
+            for temp_step in temp_recipe.steps:
+                new_step = RecipeStep(
+                    sort=temp_step.sort,
+                    type=temp_step.type,
+                    value=temp_step.value,
+                    use_random_item_instead_of_value=temp_step.use_random_item_instead_of_value,
+                    active=temp_step.active
+                )
+                for temp_item in temp_step.items:
+                    new_step.items.append(RecipeStepItem(value=temp_item.value))
+                new_recipe.steps.append(new_step)
+            if form.user_privileges.data is True:
+                new_recipe.owner = temp_recipe.owner
+                for temp_privilege in temp_recipe.privileged_users:
+                    new_recipe.privileged_users.append(UserRecipePrivilege(
+                        user=temp_privilege.user,
+                        allowed_to_edit=temp_privilege.allowed_to_edit
+                    ))
+            else:
+                new_recipe.owner = user
+            instance_count = 0
+            for temp_instance in instances:
+                if ('instance_' + str(temp_instance.uid)) in form_submitted:
+                    if form_submitted['instance_' + str(temp_instance.uid)] is 'y':
+                        instance_count = instance_count + 1
+                        new_recipe.instances.append(RecipeOrder(instance=temp_instance))
+            db.session.commit()
+        msg = Message('Your ScrapeBot recipe-duplication request', sender='ScrapeBot <scrapebot@haim.it>',
+                      recipients=[user.email])
+        msg.body = render_template('email/duplication.txt', user=user, copies=copies,
+                                   copied_privileges=form.user_privileges.data,
+                                   copied_active=form.active.data,
+                                   copied_instances=instance_count,
+                                   recipe=temp_recipe)
+        mail.send(msg)
 
 
 @bp.route('/recipe/<recipe_uid>/step', methods=['GET', 'POST'], defaults={'step_uid': None})
