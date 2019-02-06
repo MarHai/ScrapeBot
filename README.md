@@ -60,7 +60,9 @@ Currently available Firefox versions mismatch currently available Geckodriver ve
 
 Instead, you can use Chrome. This is in spite of the fact that the therefore needed Chromedriver is a bit old (as Chrome has stopped deploying it for ARM systems) and is thus not capable of taking screenshots.
 
-***tl;dr**:* *Use Chrome but do not take screenshots.* 
+Finally, note that Selenium and the ScrapeBot require RAM, something the Raspberry Pi is rather short of. As a general take, you should only use ScrapeBot on a RasPi in exceptional cases and without too many recipes running.
+
+***tl;dr**:* *Don't do it unless necessary. And if so, use Chrome but do not take screenshots.* 
 
 ## 3. Installing the web frontend
 By following the installation guidelines from above, you have also installed all the prerequisites for the web frontend. Despite these prerequisites, though, no web server is yet in place to serve it. This is only required on one instance, obviously, and it can even run on a separate machine without the instance being run regularly. Wherever it may be, here is a short installation guide for the web frontend (again, after (!) you have successfully finished setting up the above).
