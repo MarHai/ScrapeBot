@@ -296,21 +296,17 @@ class Emulator:
             required_width = self.__selenium.execute_script('return document.body.parentNode.scrollWidth')
             required_height = self.__selenium.execute_script('return document.body.parentNode.scrollHeight')
             self.__selenium.set_window_size(required_width, required_height)
-            self.__selenium.find_element_by_tag_name('body').screenshot(self.__screenshot_directory + screenshot_name)
+            screenshot_name = self.__store_screenshot(self.__selenium.find_element_by_tag_name('body'), run, step)
             self.__selenium.set_window_size(original_size['width'], original_size['height'])
-            run.data.append(Data(step=step, value=screenshot_name))
-            run.log.append(Log(message='Screenshot stored as "' + screenshot_name + '" into "' +
-                                       self.__screenshot_directory + '" and referenced as data'))
+            run.log.append(Log(message='Screenshot stored as ' + screenshot_name + ' and referenced as data'))
         elif step.type.name == 'element_screenshot':
             element = self.__get_first_elem_or_none(prior_step.temp_result)
             if element is None:
                 run.log.append(Log(message='No element available to screenshot', type=LogTypeEnum.warning))
             else:
-                screenshot_name = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '.png'
-                element.screenshot(self.__screenshot_directory + screenshot_name)
-                run.data.append(Data(step=step, value=screenshot_name))
-                run.log.append(Log(message='Element screenshot stored as "' + screenshot_name + '" into "' +
-                                           self.__screenshot_directory + '" and referenced as data'))
+                screenshot_name = self.__store_screenshot(element, run, step)
+                run.log.append(Log(message='Element screenshot stored as ' + screenshot_name +
+                                           ' and referenced as data'))
         elif step.type.name == 'find_by_id':
             try:
                 step.temp_result = self.__selenium.find_element_by_id(step.value)
@@ -496,3 +492,44 @@ class Emulator:
         else:
             return RunStatusEnum.config_error
         return RunStatusEnum.success
+
+    def __store_screenshot(self, selenium_element, run, step):
+        from scrapebot.database import Data
+        png = selenium_element.screenshot_as_png
+        screenshot_dir = self.__config.get('Instance', 'ScreenshotDirectory')
+        screenshot_name = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '.png'
+        screenshot_log = ''
+        if screenshot_dir is not None:
+            if not screenshot_dir.endswith('/'):
+                screenshot_dir = screenshot_dir + '/'
+            local_file = open(screenshot_dir + screenshot_name, 'wb')
+            local_file.write(bytearray(png))
+            local_file.close()
+            screenshot_log = screenshot_dir + screenshot_name
+            run.data.append(Data(step=step, value=screenshot_log))
+        if self.__config.get('Database', 'AWSaccess') is not None and \
+           self.__config.get('Database', 'AWSsecret') is not None and \
+           self.__config.get('Database', 'AWSbucket') is not None:
+            import boto3
+            client = boto3.client(
+                's3',
+                aws_access_key_id=self.__config.get('Database', 'AWSaccess'),
+                aws_secret_access_key=self.__config.get('Database', 'AWSsecret')
+            )
+            s3_file = client.put_object(
+                Bucket=self.__config.get('Database', 'AWSbucket'),
+                Key=screenshot_name,
+                Body=png,
+                Metadata={
+                    'Instance': run.instance.name,
+                    'Run': str(run.uid),
+                    'Step': str(step.uid)
+                }
+            )
+            screenshot_name = 's3://' + self.__config.get('Database', 'AWSbucket') + '/' + screenshot_name
+            if screenshot_log is '':
+                screenshot_log = screenshot_name
+            else:
+                screenshot_log = screenshot_log + ' and ' + screenshot_name
+            run.data.append(Data(step=step, value=screenshot_name))
+        return screenshot_log

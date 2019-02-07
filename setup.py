@@ -142,18 +142,23 @@ def setup_config():
     print('(4) Also, to simulate human surf behavior, this instance introduces random delays. ' +
           'Well, they are not completely random, though. You can set an approximate delay in seconds.')
     config.add_value('Instance', 'Timeout', read_numeric_forcefully('- Rough browser delay [in seconds]', 1))
-    print('(5) In case a recipe wants to take screenshots, where should these screenshots be stored?')
-    screenshot_dir = read_forcefully('- Directory for screenshots', 'screenshots/')
-    if not screenshot_dir.endswith('/'):
-        screenshot_dir = screenshot_dir + '/'
-    config.add_value('Instance', 'ScreenshotDirectory', screenshot_dir)
-    if not os.access(screenshot_dir, os.W_OK):
-        if os.access(screenshot_dir, os.R_OK):
-            print('- This directory, although it exists, is not writable for python scripts. Please fix that!')
-        else:
-            if read_bool_forcefully('- Directory does not exist. Create it now'):
-                os.makedirs(screenshot_dir)
-                print('- ' + screenshot_dir + ' created successfully')
+    print('(5) When taking screenshots, should these be stored locally or in an Amazon S3 bucket (i.e., the cloud)?')
+    if read_bool_forcefully('- Do you want to upload them to an Amazon S3 bucket'):
+        config.add_value('Database', 'AWSaccess', read_forcefully('- Enter your AWS Access Key'))
+        config.add_value('Database', 'AWSsecret', read_forcefully('- Along with this, what is your AWS Secret Key'))
+        config.add_value('Database', 'AWSbucket', read_forcefully('- Finally, enter the name of your bucket'))
+    else:
+        screenshot_dir = read_forcefully('- Okay, so store them locally. In which directory', 'screenshots/')
+        if not screenshot_dir.endswith('/'):
+            screenshot_dir = screenshot_dir + '/'
+        config.add_value('Instance', 'ScreenshotDirectory', screenshot_dir)
+        if not os.access(screenshot_dir, os.W_OK):
+            if os.access(screenshot_dir, os.R_OK):
+                print('- This directory, although it exists, is not writable for python scripts. Please fix that!')
+            else:
+                if read_bool_forcefully('- Directory does not exist. Create it now'):
+                    os.makedirs(screenshot_dir)
+                    print('- ' + screenshot_dir + ' created successfully')
     print('(6) If you want this instance to also serve as web frontend, you need to give it a means to send emails.')
     if read_bool_forcefully('- Will this (also) be a web frontend'):
         print('- Okay, well, in this case, let us add some information on that SMTP (!) server.')

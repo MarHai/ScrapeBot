@@ -102,6 +102,8 @@ This section holds only four options, all aimed at connecting to the central dat
   ```
   SHOW SESSION VARIABLES LIKE 'wait_timeout';
   ```
+- If you intend to take lots of screenshots, you might want to store them not locally but rather in an [Amazon S3 bucket](https://aws.amazon.com/s3/). For this to happen, you need to specify your Amazon S3 bucket user's credentials (i.e., its access and secret keys). Alternatively (also, additionally), you can specify to store screenshots locally (default; directory specified under Instance). So, in case you want to upload screenshots to Amazon, you need to specify **AWSaccess**, **AWSsecret**, and **AWSbucket** here.
+
 ### Email
 The web frontend will send emails from time to time. So if you want an instance to serve as web frontend, you need to configure an SMTP server here for it to be able to actually send those emails.
 - Again, **Host** is the address of the SMTP (!) server.
@@ -117,7 +119,7 @@ Finally, a ```config.ini``` file is always unique for one instance. And as such,
 - **BrowserBinary** is the path to the binary (if necessary). If your browser is able to run from PATH directly, then this is not necessary.
 - **BrowserUserAgent** overwrites, if set, the default [user-agent string](https://en.wikipedia.org/wiki/User_agent#Use_in_HTTP).
 - **BrowserWidth** and **BrowserHeight** define (in pixels) the size of the browser window to emulate. Use 1024 and 768 if unsure.
-- For screenshots to be taken, a **ScreenshotDirectory** has to be specified. Default is the ```screenshots/``` sub directory. 
+- For screenshots to be taken and stored locally, a **ScreenshotDirectory** could be specified. Default is the ```screenshots/``` sub directory. Alternatively, you can upload screenshots to an Amazon S3 bucket. In this case, go ahead and configure *AWSaccess*, *AWSsecret*, and *AWSbucket* under Database, this setting is then ignored.
 
 ## Further information
 ScrapeBot uses [Selenium WebDriver](https://www.seleniumhq.org/projects/webdriver/) for its browser emulations. As such, it is capable to run with a broad variety of browsers. Moreover, a running version of ScrapeBot is available under [scrapebot.haim.it](https://scrapebot.haim.it). You may ask for access to it if necessary.
