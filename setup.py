@@ -16,7 +16,7 @@ def main():
     instance_name = check_minimal_config(config)
 
     print('Continuing to the database')
-    print('- connecting to ' + config.config.get('Database', 'host', fallback='localhost'))
+    print('- connecting to ' + config.get('Database', 'host', fallback='localhost'))
     try:
         engine = get_engine(config)
         base.metadata.create_all(engine)
@@ -62,7 +62,7 @@ def main():
             db.add(Instance(name=instance_name, owner_uid=user.uid))
             db.commit()
             print('- instance newly registered and ascribed to user "' + user.name + '"')
-    print('- browser-wise this instance will use ' + config.config.get('Instance', 'browser', fallback='Firefox'))
+    print('- browser-wise this instance will use ' + config.get('Instance', 'browser', fallback='Firefox'))
 
     print('Finishing up')
     print('- instance should be ready to use')
@@ -217,10 +217,10 @@ def check_minimal_config(config):
         exit(3)
     elif 'Email' not in config_sections:
         print('- Email settings not configured so this instance cannot be the web frontend')
-    if config.config.get('Database', 'password', fallback=None) is None:
+    if config.get('Database', 'password', fallback=None) is None:
         print('- database password not configured')
         exit(3)
-    instance_name = config.config.get('Instance', 'name', fallback='')
+    instance_name = config.get('Instance', 'name', fallback='')
     if instance_name == '':
         print('- instance name not configured')
         exit(3)
@@ -231,7 +231,7 @@ def check_minimal_config(config):
 def get_engine(config):
     database_timeout = -1
     try:
-        database_timeout = int(config.config.get('Database', 'Timeout', fallback=-1))
+        database_timeout = int(config.get('Database', 'Timeout', fallback=-1))
         print('Reconnecting to MySQL (through SQLAlchemy\'s pool_recycle) every ' + str(database_timeout) + ' seconds')
     except:
         database_timeout = -1

@@ -76,16 +76,14 @@ class RecipeStepTypeEnum(enum.Enum):
 class Emulator:
     __selenium = None
     __display = None
-    __screenshot_directory = ''
     __timeout = 0
+    __config = None
 
     def run(self, config, run, step, prior_step=None):
         from scrapebot.database import Log, RunStatusEnum
         if prior_step is None:
-            if self.__init_browser(config, run):
-                self.__screenshot_directory = config.config.get('Instance', 'ScreenshotDirectory',
-                                                                fallback='screenshots/')
-            else:
+            self.__config = config
+            if not self.__init_browser(run):
                 return RunStatusEnum.error
         else:
             if self.__timeout > 0:
@@ -94,14 +92,14 @@ class Emulator:
                 time.sleep(timeout)
         return self.__handle(run, step, prior_step)
 
-    def __init_browser(self, config, run):
+    def __init_browser(self, run):
         from scrapebot.database import Log, LogTypeEnum
-        browser = config.config.get('Instance', 'browser', fallback='Firefox')
-        executable = config.config.get('Instance', 'BrowserBinary', fallback='')
-        user_agent = config.config.get('Instance', 'BrowserUserAgent', fallback='')
+        browser = self.__config.get('Instance', 'browser', fallback='Firefox')
+        executable = self.__config.get('Instance', 'BrowserBinary', fallback='')
+        user_agent = self.__config.get('Instance', 'BrowserUserAgent', fallback='')
         try:
-            browser_width = int(config.config.get('Instance', 'BrowserWidth', fallback=1024))
-            browser_height = int(config.config.get('Instance', 'BrowserHeight', fallback=768))
+            browser_width = int(self.__config.get('Instance', 'BrowserWidth', fallback=1024))
+            browser_height = int(self.__config.get('Instance', 'BrowserHeight', fallback=768))
             display_width = int(browser_width*1.2)
             display_height = int(browser_height*1.2)
             if platform.system() == 'Linux':
@@ -160,7 +158,7 @@ class Emulator:
             self.__selenium.set_window_size(browser_width, browser_height)
             run.log.append(Log(message='Browser size set to ' + str(browser_width) + ' by ' +
                                        str(browser_height) + ' pixel'))
-            self.__timeout = float(config.config.get('Instance', 'Timeout', fallback=0))
+            self.__timeout = float(self.__config.get('Instance', 'Timeout', fallback=0))
             run.log.append(Log(message='Browser timeout set to ' + str(self.__timeout) + ' seconds'))
             user_agent = self.__selenium.execute_script('return navigator.userAgent')
             run.log.append(Log(message='User agent for this session is "' + user_agent + '"'))
@@ -292,7 +290,6 @@ class Emulator:
             self.__selenium.forward()
             run.log.append(Log(message='Navigated forward one page'))
         elif step.type.name == 'screenshot':
-            screenshot_name = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '.png'
             # Selenium cannot take full-size screenshots, so here's a little workaround
             # @see https://stackoverflow.com/a/52572919
             original_size = self.__selenium.get_window_size()

@@ -10,7 +10,7 @@ print('[' + str(datetime.now()) + '] ScrapeBot initiated (this is server time)')
 config = get_config(False)
 db = get_db(get_engine(config))
 
-this_instance_name = config.config.get('Instance', 'name')
+this_instance_name = config.get('Instance', 'name')
 this_instance = None
 if this_instance_name == '' or db.query(Instance).filter(Instance.name == this_instance_name).count() == 0:
     print('Error: Instance not found')

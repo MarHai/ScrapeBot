@@ -20,11 +20,11 @@ def create_web():
     web.config['SQLALCHEMY_DATABASE_URI'] = config.get_db_engine_string()
     web.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     web.config['SECRET_KEY'] = 'yn+T[bf037&3k$7ypK4"6LMjDkymbA~gv`#qN0N*7e{i+m4%,G+/.R<qh4y7!&O'
-    web.config['MAIL_SERVER'] = config.config.get('Email', 'host')
-    web.config['MAIL_PORT'] = int(config.config.get('Email', 'port'))
-    web.config['MAIL_USE_TLS'] = config.config.get('Email', 'tls') is True
-    web.config['MAIL_USERNAME'] = config.config.get('Email', 'user')
-    web.config['MAIL_PASSWORD'] = config.config.get('Email', 'password')
+    web.config['MAIL_SERVER'] = config.get('Email', 'host')
+    web.config['MAIL_PORT'] = int(config.get('Email', 'port'))
+    web.config['MAIL_USE_TLS'] = config.get('Email', 'tls') is True
+    web.config['MAIL_USERNAME'] = config.get('Email', 'user')
+    web.config['MAIL_PASSWORD'] = config.get('Email', 'password')
     # web.debug = True
 
     db.init_app(web)
