@@ -244,12 +244,26 @@ def get_engine(config):
                   ' seconds')
     except:
         database_timeout = -1
-    return create_engine(config.get_db_engine_string(), encoding='utf-8', pool_recycle=database_timeout)
+    try:
+        return create_engine(config.get_db_engine_string(), encoding='utf-8', pool_recycle=database_timeout)
+    except:
+        print('Error: Database engine could not be created (' + config.get_db_engine_string() + ')')
+        error = sys.exc_info()[0]
+        if error is not None:
+            print('- ' + str(error))
+        exit(1)
 
 
 def get_db(engine):
-    session_factory = sessionmaker(bind=engine)
-    return scoped_session(session_factory)
+    try:
+        session_factory = sessionmaker(bind=engine)
+        return scoped_session(session_factory)
+    except:
+        print('Error: Database session could not be initiated')
+        error = sys.exc_info()[0]
+        if error is not None:
+            print('- ' + str(error))
+        exit(1)
 
 
 if __name__ == '__main__':
