@@ -213,6 +213,8 @@ def read_numeric_forcefully(line, default=None):
         else:
             print('- Using the default value, ' + str(default))
             return int(default)
+    else:
+        return int(value)
 
 
 def check_minimal_config(config):
