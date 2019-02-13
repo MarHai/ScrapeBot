@@ -1,5 +1,6 @@
 import sys
 import time
+import traceback
 from datetime import datetime
 from random import shuffle
 from setup import get_config, get_engine, get_db
@@ -24,6 +25,7 @@ except:
     error = sys.exc_info()[0]
     if error is not None:
         print('- ' + str(error))
+        print('- ' + traceback.format_exc())
     exit(1)
 
 recipes = this_instance.get_active_recipes()

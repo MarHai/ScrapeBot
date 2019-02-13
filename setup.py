@@ -2,6 +2,7 @@ import platform
 import os
 import getpass
 import sys
+import traceback
 from crontab import CronTab
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -251,6 +252,7 @@ def get_engine(config):
         error = sys.exc_info()[0]
         if error is not None:
             print('- ' + str(error))
+            print('- ' + traceback.format_exc())
         exit(1)
 
 
@@ -263,6 +265,7 @@ def get_db(engine):
         error = sys.exc_info()[0]
         if error is not None:
             print('- ' + str(error))
+            print('- ' + traceback.format_exc())
         exit(1)
 
 
