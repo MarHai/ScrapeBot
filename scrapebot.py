@@ -12,12 +12,19 @@ db = get_db(get_engine(config))
 
 this_instance_name = config.get('Instance', 'name')
 this_instance = None
-if this_instance_name == '' or db.query(Instance).filter(Instance.name == this_instance_name).count() == 0:
-    print('Error: Instance not found')
+try:
+    if this_instance_name == '' or db.query(Instance).filter(Instance.name == this_instance_name).count() == 0:
+        print('Error: Instance not found')
+        exit(1)
+    else:
+        print('Authenticated as instance "' + this_instance_name + '"')
+        this_instance = db.query(Instance).filter(Instance.name == this_instance_name).one()
+except:
+    print('Error: Initial database query failed')
+    error = sys.exc_info()[0]
+    if error is not None:
+        print('- ' + str(error))
     exit(1)
-else:
-    print('Authenticated as instance "' + this_instance_name + '"')
-    this_instance = db.query(Instance).filter(Instance.name == this_instance_name).one()
 
 recipes = this_instance.get_active_recipes()
 if len(recipes) > 0:
