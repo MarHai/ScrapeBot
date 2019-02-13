@@ -55,10 +55,10 @@ class RecipeStepTypeEnum(enum.Enum):
     go_forward = '-> Go forward one step in the browser history (only available if you went back before)'
     unset_prior_element = '. Remove any previously retrieved element (which could cause error upon further navigation)'
     screenshot = '. Take a screenshot of the whole page as PNG file'
+    sometimes_screenshot = '. Only take a screenshot of the whole page in 5% of the runs of this recipe on any instance'
     element_screenshot = '. Take a screenshot of the element which has been identified in the previous step as PNG file'
 
-    # @todo: add step type for screenshots to be taken only in some cases (e.g., every 10th run)?
-    # @todo: allow steps to be grouped (through parent steps) and randomly choose one or all steps within a group
+    # @todo?: allow steps to be grouped (through parent steps) and randomly choose one or all steps within a group
 
 
     @classmethod
@@ -289,16 +289,27 @@ class Emulator:
         elif step.type.name == 'go_forward':
             self.__selenium.forward()
             run.log.append(Log(message='Navigated forward one page'))
-        elif step.type.name == 'screenshot':
-            # Selenium cannot take full-size screenshots, so here's a little workaround
-            # @see https://stackoverflow.com/a/52572919
-            original_size = self.__selenium.get_window_size()
-            required_width = self.__selenium.execute_script('return document.body.parentNode.scrollWidth')
-            required_height = self.__selenium.execute_script('return document.body.parentNode.scrollHeight')
-            self.__selenium.set_window_size(required_width, required_height)
-            screenshot_name = self.__store_screenshot(self.__selenium.find_element_by_tag_name('body'), run, step)
-            self.__selenium.set_window_size(original_size['width'], original_size['height'])
-            run.log.append(Log(message='Screenshot stored as ' + screenshot_name + ' and referenced as data'))
+        elif step.type.name == 'screenshot' or step.type.name == 'sometimes_screenshot':
+            screenshot = True
+            if step.type.name == 'sometimes_screenshot':
+                latest_runs = run.recipe.get_latest_runs(20, run.instance)
+                for late_run in latest_runs:
+                    if screenshot:
+                        for single_data in late_run.data:
+                            if single_data.step is step and single_data.value is not '':
+                                screenshot = False
+                                run.log.append(Log(message='No screenshot taken this time'))
+                                break
+            if screenshot:
+                # Selenium cannot take full-size screenshots, so here's a little workaround
+                # @see https://stackoverflow.com/a/52572919
+                original_size = self.__selenium.get_window_size()
+                required_width = self.__selenium.execute_script('return document.body.parentNode.scrollWidth')
+                required_height = self.__selenium.execute_script('return document.body.parentNode.scrollHeight')
+                self.__selenium.set_window_size(required_width, required_height)
+                screenshot_name = self.__store_screenshot(self.__selenium.find_element_by_tag_name('body'), run, step)
+                self.__selenium.set_window_size(original_size['width'], original_size['height'])
+                run.log.append(Log(message='Screenshot stored as ' + screenshot_name + ' and referenced as data'))
         elif step.type.name == 'element_screenshot':
             element = self.__get_first_elem_or_none(prior_step.temp_result)
             if element is None:

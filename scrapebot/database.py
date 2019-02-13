@@ -167,6 +167,15 @@ class Instance(base):
                 return run
         return None
 
+    def get_latest_runs(self, n=10, recipe=None):
+        n_runs = []
+        for run in self.runs:
+            if recipe is None or run.recipe is recipe:
+                n_runs.append(run)
+                if len(n_runs) == n:
+                    break
+        return n_runs
+
     def jsonify(self, include_latest_run=False, recipe=None):
         if include_latest_run:
             latest_run = self.get_latest_run(recipe)
@@ -277,6 +286,15 @@ class Recipe(base):
             if instance is None or run.instance is instance:
                 return run
         return None
+
+    def get_latest_runs(self, n=10, instance=None):
+        n_runs = []
+        for run in self.runs:
+            if instance is None or run.instance is instance:
+                n_runs.append(run)
+                if len(n_runs) == n:
+                    break
+        return n_runs
 
     def jsonify(self, include_latest_run=False, instance=None):
         if include_latest_run:
