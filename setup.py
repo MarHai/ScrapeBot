@@ -237,7 +237,9 @@ def get_engine(config):
     database_timeout = -1
     try:
         database_timeout = int(config.get('Database', 'Timeout', fallback=-1))
-        print('Reconnecting to MySQL (through SQLAlchemy\'s pool_recycle) every ' + str(database_timeout) + ' seconds')
+        if database_timeout > 0:
+            print('Reconnecting to MySQL (through SQLAlchemy\'s pool_recycle) every ' + str(database_timeout) +
+                  ' seconds')
     except:
         database_timeout = -1
     return create_engine(config.get_db_engine_string(), encoding='utf-8', pool_recycle=database_timeout)
