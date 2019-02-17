@@ -336,6 +336,7 @@ def init_threaded_duplication(web, user, form, temp_recipe, instances, form_subm
                     if form_submitted['instance_' + str(temp_instance.uid)] is 'y':
                         instance_count = instance_count + 1
                         new_recipe.instances.append(RecipeOrder(instance=temp_instance))
+            db.session.add(new_recipe)
             db.session.commit()
         msg = Message('Your ScrapeBot recipe-duplication request', sender='ScrapeBot <scrapebot@haim.it>',
                       recipients=[user.email])
