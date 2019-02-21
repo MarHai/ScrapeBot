@@ -168,12 +168,14 @@ class Emulator:
             run.log.append(Log(message='Browser timeout set to ' + str(self.__timeout) + ' seconds'))
             user_agent = self.__selenium.execute_script('return navigator.userAgent')
             run.log.append(Log(message='User agent for this session is "' + user_agent + '"'))
-
             # @todo add settings for encoding
-
             return True
         except WebDriverException:
-            run.log.append(Log(message='Browser instance "' + browser + '" not found', type=LogTypeEnum.error))
+            if sys.exc_info()[2] is not None:
+                run.log.append(Log(message=browser + ' has raised the following error: ' + traceback.format_exc(),
+                                   type=LogTypeEnum.error))
+            else:
+                run.log.append(Log(message='Browser instance "' + browser + '" not found', type=LogTypeEnum.error))
             self.close_session(run)
             return False
         except:
@@ -193,8 +195,11 @@ class Emulator:
             self.__selenium.quit()
             run.log.append(Log(message='Browser session closed'))
         if self.__display is not None:
-            self.__display.stop()
-            run.log.append(Log(message='Virtual display closed'))
+            try:
+                self.__display.stop()
+                run.log.append(Log(message='Virtual display closed'))
+            except:
+                return False
 
     def __get_first_elem_or_none(self, element):
         if element is None:
