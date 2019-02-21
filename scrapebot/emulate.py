@@ -168,10 +168,12 @@ class Emulator:
             return True
         except WebDriverException:
             run.log.append(Log(message='Browser instance "' + browser + '" not found', type=LogTypeEnum.error))
+            self.close_session(run)
             return False
         except:
             if sys.exc_info()[2] is not None:
                 run.log.append(Log(message=traceback.format_exc(), type=LogTypeEnum.error))
+            self.close_session(run)
             return False
 
     def close_session(self, run):
@@ -184,6 +186,9 @@ class Emulator:
                     run.log.append(Log(message='Cookies stored'))
             self.__selenium.quit()
             run.log.append(Log(message='Browser session closed'))
+        if self.__display is not None:
+            self.__display.stop()
+            run.log.append(Log(message='Virtual display closed'))
 
     def __get_first_elem_or_none(self, element):
         if element is None:
