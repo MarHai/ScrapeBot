@@ -97,6 +97,7 @@ class Emulator:
         browser = self.__config.get('Instance', 'browser', fallback='Firefox')
         executable = self.__config.get('Instance', 'BrowserBinary', fallback='')
         user_agent = self.__config.get('Instance', 'BrowserUserAgent', fallback='')
+        language = self.__config.get('Instance', 'BrowserLanguage', fallback='en')
         try:
             browser_width = int(self.__config.get('Instance', 'BrowserWidth', fallback=1024))
             browser_height = int(self.__config.get('Instance', 'BrowserHeight', fallback=768))
@@ -121,6 +122,8 @@ class Emulator:
                 profile = webdriver.FirefoxProfile()
                 if user_agent != '':
                     profile.set_preference('general.useragent.override', user_agent)
+                profile.set_preference('intl.accept_languages', language)
+                run.log.append(Log(message='Browser accept language set to "' + language + '"'))
                 if executable == '':
                     self.__selenium = webdriver.Firefox(firefox_profile=profile, executable_path=gecko)
                     run.log.append(Log(message='Browser instance set to Firefox with Geckodriver "' + gecko + '"'))
@@ -144,6 +147,9 @@ class Emulator:
                 options = webdriver.ChromeOptions()
                 if user_agent != '':
                     options.add_argument('--user-agent=' + user_agent)
+                options.add_argument('--lang=' + language)
+                options.add_experimental_option('prefs', {'intl.accept_languages': language})
+                run.log.append(Log(message='Browser accept language set to "' + language + '"'))
                 self.__selenium = webdriver.Chrome(executable_path=executable, chrome_options=options)
                 run.log.append(Log(message='Browser instance set to Chrome with ChromeDriver "' + executable + '"'))
             else:
@@ -163,7 +169,7 @@ class Emulator:
             user_agent = self.__selenium.execute_script('return navigator.userAgent')
             run.log.append(Log(message='User agent for this session is "' + user_agent + '"'))
 
-            # @todo add settings for language and encoding
+            # @todo add settings for encoding
 
             return True
         except WebDriverException:

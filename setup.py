@@ -138,6 +138,7 @@ def setup_config():
         config.add_value('Instance', 'BrowserBinary', read_forcefully('- Path to binary'))
     if read_bool_forcefully('- Do you want to change this browser\'s default user-agent string'):
         config.add_value('Instance', 'BrowserUserAgent', read_forcefully('- Full user-agent string'))
+    config.add_value('Instance', 'BrowserLanguage', read_forcefully('- What language should the browser use', 'en'))
     config.add_value('Instance', 'BrowserWidth', read_numeric_forcefully('- Browser width [in pixel]', 1024))
     config.add_value('Instance', 'BrowserHeight', read_numeric_forcefully('- Browser height [in pixel]', 768))
     print('(4) Also, to simulate human surf behavior, this instance introduces random delays. ' +

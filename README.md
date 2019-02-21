@@ -118,6 +118,7 @@ Finally, a ```config.ini``` file is always unique for one instance. And as such,
 - **Browser** is the [Selenium](https://www.seleniumhq.org/projects/webdriver/) webdriver to use. See its [documentation on drivers](https://selenium-python.readthedocs.io/installation.html#drivers) to find out more. Whatever driver you choose, though, it needs to be installed correctly.
 - **BrowserBinary** is the path to the binary (if necessary). If your browser is able to run from PATH directly, then this is not necessary.
 - **BrowserUserAgent** overwrites, if set, the default [user-agent string](https://en.wikipedia.org/wiki/User_agent#Use_in_HTTP).
+- **BrowserLanguage** sets the [accept_languages setting](https://www.w3.org/International/questions/qa-lang-priorities). You can use either languages (e.g., "en", "de") or language+region (e.g., "en-us", "en-gb") settings. 
 - **BrowserWidth** and **BrowserHeight** define (in pixels) the size of the browser window to emulate. Use 1024 and 768 if unsure.
 - For screenshots to be taken and stored locally, a **ScreenshotDirectory** could be specified. Default is the ```screenshots/``` sub directory. Alternatively, you can upload screenshots to an Amazon S3 bucket. In this case, go ahead and configure *AWSaccess*, *AWSsecret*, and *AWSbucket* under Database, this setting is then ignored.
 
