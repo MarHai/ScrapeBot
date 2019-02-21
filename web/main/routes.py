@@ -207,6 +207,7 @@ def recipe(recipe_uid):
             for temp_privilege in temp_recipe.privileged_users:
                 privileged_users.append(temp_privilege.jsonify())
     return render_template('main/recipe.html', form=form, instances=user_instances, recipe=temp_recipe,
+                           average_runtime=temp_recipe.get_average_runtime(),
                            form_privilege=form_privilege, privileged_users=privileged_users)
 
 

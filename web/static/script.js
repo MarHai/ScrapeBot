@@ -184,12 +184,12 @@ $(function(){
                         case 'success':
                             $('#modal_run .badge')
                                 .addClass('badge-success')
-                                .text('Successfully terminated on ' + run.created);
+                                .text('Successfully terminated after ' + run.runtime + ' seconds');
                             break;
                         case 'error':
                             $('#modal_run .badge')
                                 .addClass('badge-danger')
-                                .text('Terminated with an error on ' + run.created);
+                                .text('Terminated with an error after ' + run.runtime + ' seconds');
                             break;
                         case 'config_error':
                             $('#modal_run .badge')
