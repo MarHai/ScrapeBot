@@ -409,6 +409,7 @@ class Run(base):
     __tablename__ = 'run'
     uid = Column(Integer, primary_key=True)
     created = Column(DateTime, default=func.now())
+    runtime = Column(Integer, default=0)
     instance_uid = Column(Integer, ForeignKey('instance.uid'))
     instance = relationship('Instance', back_populates='runs')
     recipe_uid = Column(Integer, ForeignKey('recipe.uid'))
@@ -445,6 +446,7 @@ class Run(base):
         temp = {
             'uid': self.uid,
             'created': self.created,
+            'runtime': self.runtime,
             'instance': self.instance.jsonify(),
             'recipe': self.recipe.jsonify(),
             'status': self.status.name

@@ -73,6 +73,8 @@ if len(recipes) > 0:
                 run.end_session()
                 if run.status == RunStatusEnum.in_progress:
                     run.status = RunStatusEnum.success
+                time_after_run = db.query(func.now()).first()[0]
+                run.runtime = int(time.mktime(time_after_run.timetuple()) - time.mktime(now.timetuple()))
                 db.commit()
         else:
             print('# skipping ' + recipe.name + ' since no active steps were found')

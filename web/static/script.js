@@ -175,6 +175,7 @@ $(function(){
                     var run = _data['run'];
                     $('#modal_run [data-column="recipe.name"]').html(run.recipe.name);
                     $('#modal_run [data-column="instance.name"]').html(run.instance.name);
+                    $('#modal_run [data-column="run.runtime"]').html(run.runtime);
                     $('#modal_run .badge')
                         .removeClass('badge-success')
                         .removeClass('badge-danger')
@@ -252,11 +253,11 @@ $(function(){
                     if(recipe_uid === null) {
                         item.append('<a href="/json/run/' + run.uid + '" class="d-block">' +
                             run.recipe.name + ' on ' + run.created + (run.status == 'success' ? '' : (': ' + run.status))
-                            + '</a>');
+                            + ' (' + run.runtime + 's)</a>');
                     } else {
                         item.append('<a href="/json/run/' + run.uid + '" class="d-block">' +
                             run.created + ' on ' + run.instance.name + (run.status == 'success' ? '' : (': ' + run.status))
-                            + '</a>');
+                            + ' (' + run.runtime + 's)</a>');
                     }
                     $(ul).append(item);
                 });
