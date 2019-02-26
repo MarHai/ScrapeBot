@@ -206,9 +206,12 @@ def recipe(recipe_uid):
         if temp_recipe.owner_uid == current_user.uid:
             for temp_privilege in temp_recipe.privileged_users:
                 privileged_users.append(temp_privilege.jsonify())
+    average_runtime = 0
+    if temp_recipe is not None:
+        average_runtime = temp_recipe.get_average_runtime()
     return render_template('main/recipe.html', form=form, instances=user_instances, recipe=temp_recipe,
-                           average_runtime=temp_recipe.get_average_runtime(),
-                           form_privilege=form_privilege, privileged_users=privileged_users)
+                           average_runtime=average_runtime, form_privilege=form_privilege,
+                           privileged_users=privileged_users)
 
 
 @bp.route('/recipe/<recipe_uid>/remove_privilege/<privilege_uid>')

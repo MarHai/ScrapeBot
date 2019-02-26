@@ -260,10 +260,12 @@ class Recipe(base):
         return steps
 
     def get_average_runtime(self):
-        summed_runtime = 0
-        for run in self.runs:
-            summed_runtime = summed_runtime + run.runtime
-        return round(summed_runtime/len(self.runs))
+        if len(self.runs) > 0:
+            summed_runtime = 0
+            for run in self.runs:
+                summed_runtime = summed_runtime + run.runtime
+            return round(summed_runtime/len(self.runs))
+        return 0
 
     def is_visible_to_user(self, user):
         if self.owner_uid is user.uid:
