@@ -1,7 +1,9 @@
 Hi {{ user.name }},
-
-please find attached the data that you requested. Oh and please note that this email sender is used for sending but not so much for reading.
-
+{% if link == '' %}
+please find attached the data that you requested.
+{% else %}
+please find the data that you requested here: {{ link }}
+{% endif %}
 Data is mingled into one large CSV file. It consists of one row per stored data value and as such potentially many rows per run. Let's take a look at its columns:
 - run holds the exact time a run was initiated. A run is defined as one time a browser was fired up on one instance and ran one whole recipe.
 - instance holds the name of the instance on which this specific run ran.
@@ -17,6 +19,13 @@ If you are using R for data analysis, you can simply store the attached file on 
 
 # Import the file into a data frame
 data <- read.csv('data.csv', na.strings='', colClasses=c('POSIXct', 'factor', 'factor', 'factor', 'factor', 'factor', 'factor', 'POSIXct', 'character'))
+
+# Alternatively, you could also import the data directly from S3 if stored within an Amazon Bucket
+install.packages('aws.s3', repos=c('cloudyr'='http://cloudyr.github.io/drat'), INSTALL_opts='--no-multiarch')
+library(tidyverse)
+library(aws.s3)
+Sys.setenv("AWS_ACCESS_KEY_ID" = "...", "AWS_SECRET_ACCESS_KEY" = "...", "AWS_DEFAULT_REGION" = "...")
+data <- get_object('s3://....csv') %>% read_csv(col_types='TffffffTc') %>% as_tibble()
 
 # Inspect the data frame
 str(data)
@@ -36,6 +45,7 @@ ScrapeBot
 
 
 P.S.: In case you did take screenshots, there is currently no easy way to get them. Please reach out to Mario Haim <mario@haim.it>.
+P.P.S.: Please note that this email sender is used for sending but not so much for reading.
 
 --
 https://scrapebot.haim.it

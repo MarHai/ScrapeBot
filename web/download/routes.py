@@ -4,10 +4,11 @@ from flask_mail import Message
 from flask import render_template, flash, redirect, url_for, current_app
 from web.main import bp
 from flask_login import current_user, login_required
-from web import db
+from web import db, config
 from scrapebot.database import *
 import csv
 from io import StringIO
+import hashlib
 
 
 @bp.route('/download/<instance_uids>/<recipe_uids>')
@@ -49,6 +50,37 @@ def init_threaded_download(web, user, instance_uids, recipe_uids):
                                 'data_value': run_data.value
                             })
         msg = Message('Your ScrapeBot data request', sender='ScrapeBot <scrapebot@haim.it>', recipients=[user.email])
-        msg.body = render_template('email/download.txt', user=user)
-        msg.attach('data.csv', 'text/csv', data.getvalue())
+        if data.tell() < 2000000:
+            msg.body = render_template('email/download.txt', user=user, link='')
+            msg.attach('data.csv', 'text/csv', data.getvalue())
+        else:
+            link = 'order_' + hashlib.md5(bytes(user.email, encoding='utf-8')).hexdigest() + '.csv'
+            if config.get('Database', 'AWSaccess') is not None and \
+               config.get('Database', 'AWSsecret') is not None and \
+               config.get('Database', 'AWSbucket') is not None:
+                import boto3
+                client = boto3.client(
+                    's3',
+                    aws_access_key_id=config.get('Database', 'AWSaccess'),
+                    aws_secret_access_key=config.get('Database', 'AWSsecret')
+                )
+                s3_file = client.put_object(
+                    Bucket=config.get('Database', 'AWSbucket'),
+                    Key=link,
+                    Body=bytes(data.getvalue(), encoding='utf-8')
+                )
+                link = 's3://' + config.get('Database', 'AWSbucket') + '/' + link
+            else:
+                screenshot_dir = config.get('Instance', 'ScreenshotDirectory')
+                if screenshot_dir is not None:
+                    if not screenshot_dir.endswith('/'):
+                        screenshot_dir = screenshot_dir + '/'
+                else:
+                    screenshot_dir = './'
+                link = screenshot_dir + link
+                local_file = open(link, 'w')
+                local_file.write(data.getvalue())
+                local_file.close()
+            msg.body = render_template('email/download.txt', user=user, link=link)
+        data.close()
         mail.send(msg)
