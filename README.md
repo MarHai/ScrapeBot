@@ -71,7 +71,7 @@ By following the installation guidelines from above, you have also installed all
     ```
     sudo apt-get -y install gunicorn3 supervisor nginx
     ```
-1. To make everything accessible via HTTPS, we need to have SSL certificates. For the sake of completeness, we'll self-sign our certificates here; for a production server, you may want to use [Let's Encrypt](https://letsencrypt.org/).
+1. To make everything accessible via HTTPS, we need to have SSL certificates. For the sake of completeness, we'll self-sign our certificates here; for a production server, you may want to use [Let's Encrypt](https://letsencrypt.org/), for example through [Certbot](https://certbot.eff.org/lets-encrypt/ubuntubionic-nginx).
     ```
     mkdir certs/
     openssl req -new -newkey rsa:4096 -days 365 -nodes -x509 -keyout certs/key.pem -out certs/cert.pem
