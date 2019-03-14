@@ -9,6 +9,7 @@ from scrapebot.database import *
 import csv
 from io import StringIO
 import hashlib
+import time
 
 
 @bp.route('/download/<instance_uids>/<recipe_uids>')
@@ -54,7 +55,7 @@ def init_threaded_download(web, user, instance_uids, recipe_uids):
             msg.body = render_template('email/download.txt', user=user, link='')
             msg.attach('data.csv', 'text/csv', data.getvalue())
         else:
-            link = 'order_' + hashlib.md5(bytes(user.email, encoding='utf-8')).hexdigest() + '.csv'
+            link = 'order_' + hashlib.md5(bytes(user.email + str(time.time()), encoding='utf-8')).hexdigest() + '.csv'
             if config.get('Database', 'AWSaccess') is not None and \
                config.get('Database', 'AWSsecret') is not None and \
                config.get('Database', 'AWSbucket') is not None:
