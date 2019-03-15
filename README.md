@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/MarHai/ScrapeBot.svg?branch=master)](https://travis-ci.com/MarHai/ScrapeBot)
+
 # ScrapeBot
 ScrapeBot is a tool for so-called "agent-based testing" to automatically visit, modify, and scrape a defined set of webpages regularly. It was built to automate various web-based tasks and keep track of them in a controllable way for academic research, primarily in the realm of computational social science.
 
