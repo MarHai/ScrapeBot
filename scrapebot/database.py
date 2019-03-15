@@ -1,7 +1,6 @@
 import string
 import enum
 import random
-from typing import List
 from sqlalchemy import Column, DateTime, String, Integer, Enum, Text, Boolean, ForeignKey, func
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
