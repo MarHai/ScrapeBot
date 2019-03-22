@@ -36,10 +36,12 @@ def init_threaded_download(web, user, instance_uids, recipe_uids):
         temp_name = 'order_' + hashlib.md5(bytes(user.email + str(time.time()), encoding='utf-8')).hexdigest() + '.csv'
         temp_file = open(temp_name, 'w', newline='')
         # extrasaction='ignore' tells DictWriter not to check on the keys in every single iteration
-        csv_data = csv.DictWriter(temp_file, fieldnames=['run', 'instance',
-                                                    'recipe', 'recipe_name', 'recipe_status',
-                                                    'step', 'step_name',
-                                                    'data_creation', 'data_value'], extrasaction='ignore')
+        csv_data = csv.DictWriter(temp_file,
+                                  fieldnames=['run', 'instance',
+                                              'recipe', 'recipe_name', 'recipe_status',
+                                              'step', 'step_name',
+                                              'data_creation', 'data_value'],
+                                  extrasaction='ignore')
         csv_data.writeheader()
         for instance_uid in instance_uids:
             instance = db.session.query(Instance).filter(Instance.uid == instance_uid).one_or_none()
