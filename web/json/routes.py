@@ -1,9 +1,9 @@
 from flask import jsonify
 from web import db
-from scrapebot.database import Run, Instance, Recipe
+from scrapebot.database import Run, Instance, Recipe, UserRecipePrivilege, RecipeOrder
 from flask_login import current_user, login_required
 from web.json import bp
-from sqlalchemy import func
+from sqlalchemy import func, and_
 
 
 @bp.route('/json/instances', defaults={'recipe_uids': ''})
@@ -39,22 +39,30 @@ def recipes(instance_uids):
     data = []
     if instance_uids:
         instance_uids = [int(uid) for uid in str(instance_uids).split('-')]
+        for (recipe, instance_count) in db.session.query(
+                Recipe,
+                func.count(RecipeOrder.uid)
+            ).outerjoin(
+                RecipeOrder,
+                and_(RecipeOrder.recipe_uid == Recipe.uid, RecipeOrder.instance_uid.in_(instance_uids))
+            ).filter(Recipe.owner_uid == current_user.uid).group_by(Recipe.uid):
+            if instance_count > 0:
+                data.append(recipe.jsonify(include_latest_run=True))
+        for (recipe, instance_count) in db.session.query(
+                Recipe,
+                func.count(RecipeOrder.uid)
+            ).outerjoin(
+                RecipeOrder,
+                and_(RecipeOrder.recipe_uid == Recipe.uid, RecipeOrder.instance_uid.in_(instance_uids))
+            ).join(UserRecipePrivilege).filter(UserRecipePrivilege.user_uid == current_user.uid):
+            if instance_count > 0:
+                data.append(recipe.jsonify(include_latest_run=True))
     else:
-        instance_uids = []
-    for recipe in current_user.recipes_owned:
-        if len(instance_uids) > 0:
-            for order in recipe.instances:
-                if order.instance_uid in instance_uids:
-                    data.append(recipe.jsonify(include_latest_run=True, instance=order.instance))
-        else:
+        for recipe in db.session.query(Recipe).filter(Recipe.owner_uid == current_user.uid):
             data.append(recipe.jsonify(include_latest_run=True))
-    for privilege in current_user.instance_privileges:
-        if len(instance_uids) > 0:
-            for order in privilege.recipe.instances:
-                if order.instance_uid in instance_uids:
-                    data.append(privilege.recipe.jsonify(include_latest_run=True, instance=order.instance))
-        else:
-            data.append(privilege.recipe.jsonify(include_latest_run=True))
+        for recipe in db.session.query(Recipe).join(UserRecipePrivilege).filter(
+                UserRecipePrivilege.user_uid == current_user.uid):
+            data.append(recipe.jsonify(include_latest_run=True))
     return jsonify({'status': 200, 'count': len(data), 'data': data})
 
 
