@@ -7,13 +7,14 @@ from flask_login import current_user, login_required
 from flask_mail import Message
 from web.main import bp
 from web.main.forms import *
+from web.download.forms import DownloadForm
 
 
 @bp.route('/')
 @bp.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('main/dashboard.html')
+    return render_template('main/dashboard.html', form_download=DownloadForm())
 
 
 @bp.route('/imprint')

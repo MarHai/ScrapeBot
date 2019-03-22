@@ -19,14 +19,14 @@ If you are using R for data analysis, you can simply store the attached file on 
 
 # Import the file into a data frame
 data <- read.csv('data.csv', na.strings='', colClasses=c('POSIXct', 'factor', 'factor', 'factor', 'factor', 'factor', 'factor', 'POSIXct', 'character'))
-
+{% if link != '' %}
 # Alternatively, you could also import the data directly from S3 if stored within an Amazon Bucket
 install.packages('aws.s3', repos=c('cloudyr'='http://cloudyr.github.io/drat'), INSTALL_opts='--no-multiarch')
 library(tidyverse)
 library(aws.s3)
 Sys.setenv("AWS_ACCESS_KEY_ID" = "...", "AWS_SECRET_ACCESS_KEY" = "...", "AWS_DEFAULT_REGION" = "...")
 data <- get_object('s3://....csv') %>% read_csv(col_types='TffffffTc') %>% as_tibble()
-
+{% endif %}
 # Inspect the data frame
 str(data)
 

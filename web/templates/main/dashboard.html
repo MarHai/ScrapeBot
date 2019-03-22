@@ -3,7 +3,12 @@
 {% block content %}
 <div class="mb-4 alert alert-secondary d-none" id="download">
     You have selected <span id="recipe_count"></span> recipe(s) on <span id="instance_count"></span> instance(s):
-    <a href="#">Download this data now</a>
+    <form action="/download" method="post">
+        {{ form_download.hidden_tag() }}
+        {{ form_download.instance_list(class_="d-none") }}
+        {{ form_download.recipe_list(class_="d-none") }}
+        {{ form_download.submit(class_="btn btn-link") }}
+    </form>
 </div>
 <div class="row">
     <div class="col-5">

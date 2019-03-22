@@ -142,8 +142,8 @@ $(function(){
             $('#' + opposing_model + '_count').text(selected_opposing_model);
             var str_model = $.map(selected_models, function(o) {return $(o).data('uid')}).join('-'),
                 str_opposing = $.map(selected_opposing_models,function(o) {return $(o).data('uid')}).join('-');
-            $('#download a').attr('href', '/download/' + (model == 'instance' ? str_model : str_opposing) +
-                '/' + (model == 'instance' ? str_opposing : str_model));
+            $('#download #instance_list').val((model == 'instance' ? str_model : str_opposing));
+            $('#download #recipe_list').val((model == 'instance' ? str_opposing : str_model));
             $('#download').removeClass('d-none');
         } else {
             $('#download').addClass('d-none');
