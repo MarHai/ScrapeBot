@@ -7,7 +7,7 @@ from flask_login import current_user, login_required
 from web import db, config
 from scrapebot.database import *
 import csv
-from io import StringIO
+import os
 import hashlib
 import time
 from web.download.forms import DownloadForm
@@ -33,9 +33,10 @@ def download():
 
 def init_threaded_download(web, user, instance_uids, recipe_uids):
     with web.app_context():
-        data = StringIO()
+        temp_name = 'order_' + hashlib.md5(bytes(user.email + str(time.time()), encoding='utf-8')).hexdigest() + '.csv'
+        temp_file = open(temp_name, 'w', newline='')
         # extrasaction='ignore' tells DictWriter not to check on the keys in every single iteration
-        csv_data = csv.DictWriter(data, fieldnames=['run', 'instance',
+        csv_data = csv.DictWriter(temp_file, fieldnames=['run', 'instance',
                                                     'recipe', 'recipe_name', 'recipe_status',
                                                     'step', 'step_name',
                                                     'data_creation', 'data_value'], extrasaction='ignore')
@@ -69,12 +70,17 @@ def init_threaded_download(web, user, instance_uids, recipe_uids):
                                 'data_value': run_data[1]
                             })
                         csv_data.writerows(rows)
+        file_size = temp_file.tell()
+        temp_file.close()
+        delete = True
         msg = Message('Your ScrapeBot data request', sender='ScrapeBot <scrapebot@haim.it>', recipients=[user.email])
-        if data.tell() < 2000000:
+        if file_size < 2000000:
             msg.body = render_template('email/download.txt', user=user, link='')
-            msg.attach('data.csv', 'text/csv', data.getvalue())
+            temp_file = open(temp_name, 'r')
+            msg.attach(temp_name, 'text/csv', temp_file.read())
+            temp_file.close()
         else:
-            link = 'order_' + hashlib.md5(bytes(user.email + str(time.time()), encoding='utf-8')).hexdigest() + '.csv'
+            link = temp_name
             if config.get('Database', 'AWSaccess') is not None and \
                config.get('Database', 'AWSsecret') is not None and \
                config.get('Database', 'AWSbucket') is not None:
@@ -84,23 +90,12 @@ def init_threaded_download(web, user, instance_uids, recipe_uids):
                     aws_access_key_id=config.get('Database', 'AWSaccess'),
                     aws_secret_access_key=config.get('Database', 'AWSsecret')
                 )
-                s3_file = client.put_object(
-                    Bucket=config.get('Database', 'AWSbucket'),
-                    Key=link,
-                    Body=bytes(data.getvalue(), encoding='utf-8')
-                )
-                link = 's3://' + config.get('Database', 'AWSbucket') + '/' + link
+                with open(temp_name, 'rb') as data:
+                    client.upload_fileobj(data, config.get('Database', 'AWSbucket'), temp_name)
+                link = 's3://' + config.get('Database', 'AWSbucket') + '/' + temp_name
             else:
-                screenshot_dir = config.get('Instance', 'ScreenshotDirectory')
-                if screenshot_dir is not None:
-                    if not screenshot_dir.endswith('/'):
-                        screenshot_dir = screenshot_dir + '/'
-                else:
-                    screenshot_dir = './'
-                link = screenshot_dir + link
-                local_file = open(link, 'w')
-                local_file.write(data.getvalue())
-                local_file.close()
+                delete = False
             msg.body = render_template('email/download.txt', user=user, link=link)
-        data.close()
+        if delete:
+            os.remove(temp_name)
         mail.send(msg)
