@@ -58,7 +58,7 @@ class RecipeStepTypeEnum(enum.Enum):
     sometimes_screenshot = '. Only take a screenshot of the whole page in 5% of the runs of this recipe on any instance'
     element_screenshot = '. Take a screenshot of the element which has been identified in the previous step as PNG file'
 
-    # @todo?: allow steps to be grouped (through parent steps) and randomly choose one or all steps within a group
+    # @todo?: allow steps to be grouped (through parent steps) and randomly chosen (either one step or random order)
 
     @classmethod
     def choices(cls):
@@ -168,7 +168,7 @@ class Emulator:
             run.log.append(Log(message='Browser timeout set to ' + str(self.__timeout) + ' seconds'))
             user_agent = self.__selenium.execute_script('return navigator.userAgent')
             run.log.append(Log(message='User agent for this session is "' + user_agent + '"'))
-            # @todo add settings for encoding
+            # @todo?: add encoding (Accept-Charset and Accept); however, neither is currently available to Selenium
             return True
         except WebDriverException:
             if sys.exc_info()[2] is not None:
