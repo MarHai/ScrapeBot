@@ -98,6 +98,7 @@ class Emulator:
         user_agent = self.__config.get('Instance', 'BrowserUserAgent', fallback='')
         language = self.__config.get('Instance', 'BrowserLanguage', fallback='en')
         try:
+            lib_prefix = self.__config.get('Instance', 'LibDirPrefix', fallback='')
             browser_width = int(self.__config.get('Instance', 'BrowserWidth', fallback=1024))
             browser_height = int(self.__config.get('Instance', 'BrowserHeight', fallback=768))
             display_width = int(browser_width*1.2)
@@ -111,13 +112,13 @@ class Emulator:
                 gecko = '32' if platform.architecture()[0].startswith('32') else '64'
                 if platform.system() == 'Linux':
                     if platform.machine().lower().startswith('arm'):
-                        gecko = 'lib/geckodriver-arm-v0.23'
+                        gecko = lib_prefix + 'lib/geckodriver-arm-v0.23'
                     else:
-                        gecko = 'lib/geckodriver-linux' + gecko
+                        gecko = lib_prefix + 'lib/geckodriver-linux' + gecko
                 elif platform.system() == 'Darwin':
-                    gecko = 'lib/geckodriver-macos'
+                    gecko = lib_prefix + 'lib/geckodriver-macos'
                 else:
-                    gecko = 'lib/geckodriver-win' + gecko + '.exe'
+                    gecko = lib_prefix + 'lib/geckodriver-win' + gecko + '.exe'
                 profile = webdriver.FirefoxProfile()
                 if user_agent != '':
                     profile.set_preference('general.useragent.override', user_agent)
@@ -136,13 +137,13 @@ class Emulator:
                 if executable == '':
                     if platform.system() == 'Linux':
                         if platform.machine().lower().startswith('arm'):
-                            executable = 'lib/chromedriver-arm'
+                            executable = lib_prefix + 'lib/chromedriver-arm'
                         else:
-                            executable = 'lib/chromedriver-linux'
+                            executable = lib_prefix + 'lib/chromedriver-linux'
                     elif platform.system() == 'Darwin':
-                        executable = 'lib/chromedriver-macos'
+                        executable = lib_prefix + 'lib/chromedriver-macos'
                     else:
-                        executable = 'lib/chromedriver-win.exe'
+                        executable = lib_prefix + 'lib/chromedriver-win.exe'
                 options = webdriver.ChromeOptions()
                 if user_agent != '':
                     options.add_argument('--user-agent=' + user_agent)
