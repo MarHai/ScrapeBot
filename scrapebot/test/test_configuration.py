@@ -5,12 +5,19 @@ import re
 
 @pytest.fixture
 def new_configuration():
-    return Configuration()
+    return make_configuration()
+
+
+def make_configuration():
+    config = Configuration()
+    config.add_value('Instance', 'browser', 'Firefox')
+    config.add_value('Instance', 'BrowserBinary', '')
+    return config
 
 
 class TestConfiguration(object):
     def test_db_engine_string(self, new_configuration):
-        pattern = re.compile('^[a-z+]+:\/\/[a-zA-Z0-9\-_]{1,32}:.+@[a-zA-Z0-9\-_+~.]+\/[a-zA-Z0-9\-_]+$')
+        pattern = re.compile('^[a-z+]+://[a-zA-Z0-9-_]{1,32}:.+@[a-zA-Z0-9-_+~.]+/[a-zA-Z0-9-_]+$')
         assert pattern.match(new_configuration.get_db_engine_string())
 
     def test_get(self, new_configuration):
