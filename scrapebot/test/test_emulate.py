@@ -45,14 +45,6 @@ def test_step_run_with_fixed_item(new_recipe_step_item):
 
 
 class TestEmulator(object):
-    def test_run_error(self, new_configuration, new_emulator, new_run, new_user):
-        recipe = make_recipe(new_user)
-        assert new_emulator.run(
-            new_configuration,
-            new_run,
-            make_recipe_step(recipe)
-        ) is RunStatusEnum.error
-
     def test_run_init_firefox(self, new_configuration, new_emulator, new_run, new_recipe_step):
         handler = new_emulator.run(new_configuration, new_run, new_recipe_step)
         assert handler is RunStatusEnum.success
