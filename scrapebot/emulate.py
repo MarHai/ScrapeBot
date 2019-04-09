@@ -60,7 +60,6 @@ class RecipeStepTypeEnum(enum.Enum):
 
     # @todo?: allow steps to be grouped (through parent steps) and randomly choose one or all steps within a group
 
-
     @classmethod
     def choices(cls):
         return [(choice.name, choice.value) for choice in cls]
@@ -221,7 +220,7 @@ class Emulator:
         from scrapebot.database import Log, LogTypeEnum, RunStatusEnum, Data
         if step.type.name == 'log':
             run.log.append(Log(message=step.value))
-        if step.type.name == 'data':
+        elif step.type.name == 'data':
             run.data.append(Data(step=step, value=step.value))
         elif step.type.name == 'execute_js':
             return_value = self.__selenium.execute_script(step.value)
