@@ -1,10 +1,16 @@
 language: python
 dist: xenial
+addons:
+  firefox: latest
+services:
+  - xvfb
 python:
   - "3.6"
   - "3.7"
   - "3.7-dev"
   - "3.8-dev"
+before_install:
+  - chmod u+x lib/*
 install:
   - pip install -r requirements.txt
 script:
