@@ -1,16 +1,18 @@
 import pytest
 from scrapebot.configuration import Configuration
 import re
+import os
 
 
 @pytest.fixture
-def new_configuration():
-    return make_configuration()
+def new_configuration(pytestconfig):
+    return make_configuration(pytestconfig.rootdir)
 
 
-def make_configuration():
+def make_configuration(root_dir):
     config = Configuration()
     config.add_value('Instance', 'browser', 'Firefox')
+    config.add_value('Instance', 'LibDirPrefix', os.path.join(root_dir, ''))
     config.add_value('Instance', 'BrowserBinary', '')
     return config
 
