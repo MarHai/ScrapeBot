@@ -239,7 +239,7 @@ class Emulator:
                     for cookie in cookies:
                         self.__selenium.add_cookie(cookie)
                     run.log.append(Log(message='Cookies loaded for browser session'))
-            self.__selenium.get(step.value)
+                    self.__selenium.get(step.value)
             run.log.append(Log(message='Navigated to "' + step.value + '"'))
         elif step.type.name == 'click':
             element = self.__get_first_elem_or_none(prior_step.temp_result)
