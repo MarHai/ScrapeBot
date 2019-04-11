@@ -28,6 +28,8 @@
                 <ul class="list-group list-group-flush" id="recipes"></ul>
                 <div class="mt-2">
                     <div class="float-right">
+                        <button data-toggle="modal" data-target="#modal_import"
+                                class="btn btn-sm btn-outline-secondary mr-2">Import recipe from .sbj file</button>
                         <a href="{{ url_for('main.recipe') }}"
                            class="btn btn-sm btn-outline-secondary">Create new recipe</a>
                     </div>
@@ -40,6 +42,37 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" tabindex="-1" role="dialog" id="modal_import">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Import recipe from .sbj file
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url_for('main.recipe_import') }}" method="post" class="form" role="form"
+                      enctype="multipart/form-data">
+                    <p class="alert alert-info">
+                        Use this uploader to specify a .sbj file to be imported. Such .sbj files represent a recipe with its steps and values but without any runtime information. That is, it does not include any instances, runs, data, or logs. To export your own recipes, visit a recipe's page and click the "export" button. If you provide this exported recipe along with your research, this should help increase both transparency and replicability.
+                    </p>
+                    <div class="form-group">
+                        <label class="form-control-label" for="sbj_file">Select the .sbj file from your computer</label>
+                        <input class="form-control" name="sbj_file" id="sbj_file" accept=".sbj" type="file" />
+                    </div>
+                    <div class="text-right">
+                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
+                        <input type="submit" class="btn btn-outline-primary" value="Import now" />
+                    </div>
+                </form>
             </div>
         </div>
     </div>

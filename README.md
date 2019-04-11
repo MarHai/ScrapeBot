@@ -124,6 +124,13 @@ Finally, a ```config.ini``` file is always unique for one instance. And as such,
 - **BrowserWidth** and **BrowserHeight** define (in pixels) the size of the browser window to emulate. Use 1024 and 768 if unsure.
 - For screenshots to be taken and stored locally, a **ScreenshotDirectory** could be specified. Default is the ```screenshots/``` sub directory. Alternatively, you can upload screenshots to an Amazon S3 bucket. In this case, go ahead and configure *AWSaccess*, *AWSsecret*, and *AWSbucket* under Database, this setting is then ignored.
 
+## Replicability
+ScrapeBot offers to export recipes into JSON-encapsulated files. These files are called `.sbj` files (as in **S**crape**B**ot **J**SON) and include all necessary specifications for a recipe, its individual steps and values. Note, that these files do not include any runtime information, such as instances, runs, logs, or collected data.
+
+However, `.sbj` files can also be imported into the system. As such, they depict an easy way to publish replicable recipes for other scholars to build upon.
+
+To get you started easily on ScrapeBot, you can find a couple of import-ready `.sbj` files under [recipes/](recipes).  
+
 ## Further information
 ScrapeBot uses [Selenium WebDriver](https://www.seleniumhq.org/projects/webdriver/) for its browser emulations. As such, it is capable to run with a broad variety of browsers. 
 

@@ -204,6 +204,7 @@
                     </tbody>
                 </table>
                 <div class="text-right mt-2">
+                    <a class="btn btn-sm btn-outline-secondary mr-2" href="{{ url_for('main.recipe_export', recipe_uid=recipe.uid) }}">Export recipe to .sbj file</a>
                     <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('main.step', recipe_uid=recipe.uid) }}">Add new step</a>
                 </div>
             {% else %}

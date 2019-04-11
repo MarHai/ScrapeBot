@@ -1,6 +1,9 @@
+import io
+import traceback
+import sys
 from threading import Thread
 from datetime import date
-from flask import render_template, flash, redirect, url_for, request, current_app
+from flask import render_template, flash, redirect, url_for, request, current_app, send_file
 from scrapebot.database import *
 from web import db, mail
 from flask_login import current_user, login_required
@@ -8,6 +11,8 @@ from flask_mail import Message
 from web.main import bp
 from web.main.forms import *
 from web.download.forms import DownloadForm
+from json import dumps, loads
+from werkzeug.utils import secure_filename
 
 
 @bp.route('/')
@@ -255,6 +260,85 @@ def recipe_multiple_action(recipe_uids, deactivate):
     else:
         flash('No changes necessary or you do not have the permissions to do so (or both).')
     return redirect(url_for('main.dashboard'))
+
+
+@bp.route('/recipe/<recipe_uid>/export')
+@login_required
+def recipe_export(recipe_uid):
+    temp_recipe = db.session.query(Recipe).filter(Recipe.uid == int(recipe_uid)).one_or_none()
+    if temp_recipe is None or not temp_recipe.is_visible_to_user(current_user):
+        flash('You do not have the permission to view this recipe.')
+        return redirect(url_for('main.dashboard'))
+    sbj = {
+        '_comment': 'This is an exported recipe file from ScrapeBot in JSON format (thus .sbj, *S*crape*B*ot *J*son).' +
+                    ' You can find more information on this file format on GitHub: https://github.com/MarHai/ScrapeBot',
+        'name': temp_recipe.name,
+        'description': temp_recipe.description,
+        'interval': temp_recipe.interval,
+        'cookies': temp_recipe.cookies,
+        'active': temp_recipe.active,
+        'steps': []
+    }
+    for temp_step in temp_recipe.steps:
+        sbj_step = {
+            'sort': temp_step.sort,
+            'type': temp_step.type.name,
+            'value': temp_step.value,
+            'use_random_item_instead_of_value': temp_step.use_random_item_instead_of_value,
+            'active': temp_step.active,
+            'random_items': []
+        }
+        for temp_item in temp_step.items:
+            sbj_step['random_items'].append(temp_item.value)
+        sbj['steps'].append(sbj_step)
+    sbj_file = io.BytesIO()
+    sbj_file.write(dumps(sbj).encode('utf8'))
+    sbj_file.seek(0)
+    return send_file(sbj_file,
+                     as_attachment=True,
+                     mimetype='application/json',
+                     attachment_filename=secure_filename('%s.sbj' % temp_recipe.name))
+
+
+@bp.route('/recipe/import', methods=['POST'])
+@login_required
+def recipe_import():
+    try:
+        uploaded_file = request.files.get('sbj_file')
+        sbj = loads(uploaded_file.read(), encoding='utf8')
+        new_recipe = Recipe(
+            name=sbj['name'],
+            description=sbj['description'],
+            active=True if sbj['active'] else False,
+            cookies=True if sbj['cookies'] else False,
+            interval=sbj['interval'],
+            owner=current_user
+        )
+        for temp_step in sbj['steps']:
+            new_step = RecipeStep(
+                sort=temp_step['sort'],
+                type=RecipeStepTypeEnum[RecipeStepTypeEnum.coerce(temp_step['type'])],
+                value=temp_step['value'],
+                use_random_item_instead_of_value=True if temp_step['use_random_item_instead_of_value'] else False,
+                active=True if temp_step['active'] else False
+            )
+            for temp_item in temp_step['random_items']:
+                new_step.items.append(RecipeStepItem(value=temp_item))
+            new_recipe.steps.append(new_step)
+        db.session.add(new_recipe)
+        db.session.commit()
+        temp_recipe = db.session.query(Recipe).filter(Recipe.owner == current_user)\
+            .order_by(Recipe.created.desc()).first()
+        recipe_uid = temp_recipe.uid
+        flash('%s imported successfully' % uploaded_file.filename)
+        return redirect(url_for('main.recipe', recipe_uid=recipe_uid))
+    except:
+        error = sys.exc_info()
+        if error is not None and error[0] is not None:
+            flash('Import aborted due to the following unexpected error: ' + str(error[0]) + traceback.format_exc())
+        else:
+            flash('Import aborted due to an unknown unexpected error. The traceback is: ' + traceback.format_exc())
+        return redirect(url_for('main.dashboard'))
 
 
 @bp.route('/recipe/<recipe_uid>/duplicate', methods=['GET', 'POST'])
