@@ -35,18 +35,18 @@ if len(recipes) > 0:
     for recipe in recipes:
         steps = recipe.get_active_steps()
         if len(steps) > 0:
-            latest_run = recipe.get_latest_run(this_instance)
+            latest_run = recipe.get_latest_run(this_instance, only_include_successful_runs=True)
             # to compare with an adequate timezone, we use the same database function as CREATE does
             now = db.query(func.now()).first()[0]
             if latest_run is not None and \
                (int(time.mktime(now.timetuple()) - time.mktime(latest_run.created.timetuple()))/60) < recipe.interval:
 
-                print('# skipping ' + recipe.name + ' since latest run was less than ' + str(recipe.interval) +
-                      ' minute(s) ago')
+                print('# skipping ' + recipe.name + ' since latest successful run was less than ' +
+                      str(recipe.interval) + ' minute(s) ago')
             else:
                 if latest_run is None:
                     print('# ' + recipe.name + ' (' + str(len(steps)) +
-                          ' active step(s) found, never run on this instance)')
+                          ' active step(s) found, never successfully run on this instance)')
                 else:
                     print('# ' + recipe.name + ' (' + str(len(steps)) +
                           ' active step(s) found, last run on this instance at ' + str(latest_run.created) + ')')

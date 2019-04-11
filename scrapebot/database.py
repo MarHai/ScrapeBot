@@ -160,19 +160,21 @@ class Instance(base):
                 return True
         return False
 
-    def get_latest_run(self, recipe=None):
+    def get_latest_run(self, recipe=None, only_include_successful_runs=False):
         for run in self.runs:
             if recipe is None or run.recipe is recipe:
-                return run
+                if not only_include_successful_runs or run.status == RunStatusEnum.success:
+                    return run
         return None
 
-    def get_latest_runs(self, n=10, recipe=None):
+    def get_latest_runs(self, n=10, recipe=None, only_include_successful_runs=False):
         n_runs = []
         for run in self.runs:
             if recipe is None or run.recipe is recipe:
-                n_runs.append(run)
-                if len(n_runs) == n:
-                    break
+                if not only_include_successful_runs or run.status == RunStatusEnum.success:
+                    n_runs.append(run)
+                    if len(n_runs) == n:
+                        break
         return n_runs
 
     def jsonify(self, include_latest_run=False, recipe=None):
@@ -288,19 +290,21 @@ class Recipe(base):
                 return True
         return False
 
-    def get_latest_run(self, instance=None):
+    def get_latest_run(self, instance=None, only_include_successful_runs=False):
         for run in self.runs:
             if instance is None or run.instance is instance:
-                return run
+                if not only_include_successful_runs or run.status == RunStatusEnum.success:
+                    return run
         return None
 
-    def get_latest_runs(self, n=10, instance=None):
+    def get_latest_runs(self, n=10, instance=None, only_include_successful_runs=False):
         n_runs = []
         for run in self.runs:
             if instance is None or run.instance is instance:
-                n_runs.append(run)
-                if len(n_runs) == n:
-                    break
+                if not only_include_successful_runs or run.status == RunStatusEnum.success:
+                    n_runs.append(run)
+                    if len(n_runs) == n:
+                        break
         return n_runs
 
     def jsonify(self, include_latest_run=False, instance=None):
