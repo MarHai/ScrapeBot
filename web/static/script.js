@@ -220,7 +220,11 @@ $(function(){
                         $('ul[data-column="data"]').html('');
                         $.each(run.data, function (i, data) {
                             $('<li class="list-group-item" data-toggle="tooltip" data-placement="left" title="Step #' +
-                                data.step.sort + ' (' + data.step.type + ')">' + data.value + '</li>')
+                                data.step.sort + ' (' + data.step.type + ')">' + (
+                                    data.value.length > 100 ?
+                                    (data.value.substr(0, 30) + '...') :
+                                    data.value
+                                ) + '</li>')
                                 .appendTo('ul[data-column="data"]');
                         });
                         $('[data-toggle="tooltip"]').tooltip();
