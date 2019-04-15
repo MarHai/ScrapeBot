@@ -16,6 +16,7 @@ this_instance = None
 try:
     if this_instance_name == '' or db.query(Instance).filter(Instance.name == this_instance_name).count() == 0:
         print('Error: Instance not found')
+        db.close()
         exit(1)
     else:
         print('Authenticated as instance "' + this_instance_name + '"')
@@ -26,6 +27,7 @@ except:
     if error is not None:
         print('- ' + str(error))
         print('- ' + traceback.format_exc())
+    db.close()
     exit(1)
 
 recipes = this_instance.get_active_recipes()
@@ -81,3 +83,5 @@ if len(recipes) > 0:
     print('All done')
 else:
     print('No (active) recipes found (actively) ascribed to this instance')
+
+db.close()

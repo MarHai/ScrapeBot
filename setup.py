@@ -83,6 +83,7 @@ def main():
         print('- to run it regularly (which is what you want), you may want to use Windows Task Scheduler or the like')
     print('---------')
     print('Thanks for using; please direct any questions and pull requests to https://github.com/marhai/scrapebot')
+    db.close()
 
 
 def create_user(db, username, email):
