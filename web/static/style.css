@@ -20,8 +20,17 @@ label {
     border-bottom: 0;
 }
 
+.main-row {
+    height: 70vh;
+}
+
+.main-row .card .list-group {
+    height: 55vh;
+    overflow-y: auto;
+}
+
 footer {
-    padding: 2.5rem 0;
+    padding: 1rem 0 0 0;
     color: #999;
     text-align: center;
     border-top: .05rem solid #e5e5e5;

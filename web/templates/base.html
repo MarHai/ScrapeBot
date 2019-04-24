@@ -10,7 +10,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
 
-    <title>ScrapeBot Administration</title>
+    <title>ScrapeBot</title>
 
     <link rel="apple-touch-icon" sizes="57x57" href="{{ url_for('static', filename='icon/apple-icon-57x57.png') }}">
     <link rel="apple-touch-icon" sizes="60x60" href="{{ url_for('static', filename='icon/apple-icon-60x60.png') }}">
@@ -53,10 +53,10 @@
         </div>
     </header>
 
-    <div class="container pt-5">
+    <div class="container pt-3">
         {% with messages = get_flashed_messages() %}
         {% if messages %}
-            <div class="jumbotron p-4 text-white rounded bg-dark mb-3">
+            <div class="jumbotron p-4 text-white rounded bg-dark mb-2">
                 {% for message in messages %}
                     <p class="lead my-1">{{ message }}</p>
                 {% endfor %}
@@ -67,7 +67,7 @@
         {% block content %}{% endblock %}
     </div>
 
-    <footer class="mt-3">
+    <footer class="mt-2">
         <p>Built and maintained by <a href="https://haim.it">Mario Haim</a> (<a href="{{ url_for('main.imprint') }}">Imprint</a>).</p>
     </footer>
 

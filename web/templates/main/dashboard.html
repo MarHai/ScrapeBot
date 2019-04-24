@@ -10,7 +10,7 @@
         {{ form_download.submit(class_="btn btn-link") }}
     </form>
 </div>
-<div class="row">
+<div class="row main-row">
     <div class="col-5">
         <div class="card flex-md-row mb-4 shadow-sm">
             <div class="card-body">
@@ -33,7 +33,7 @@
                         <a href="{{ url_for('main.recipe') }}"
                            class="btn btn-sm btn-outline-secondary">Create new recipe</a>
                     </div>
-                    <div class="dropdown">
+                    <div class="dropdown d-none">
                         <a class="btn btn-sm btn-outline-secondary dropdown-toggle" id="recipe_action" role="button"
                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" href="#">Multiple edit</a>
                         <div class="dropdown-menu" aria-labelledby="recipe_action">
