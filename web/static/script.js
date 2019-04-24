@@ -1,7 +1,8 @@
 $(function(){
     var loading = '<li class="list-group-item disabled text-center">... loading ...</li>',
         error = '<li class="list-group-item list-group-item-danger">###</li>',
-        filter = '';
+        filter = '',
+        refresh_fifo = { instance: [], recipe: [] };
 
     /**
      * Dashboard instance-recipe handlers
@@ -11,54 +12,65 @@ $(function(){
     }
     function refresh(model, only_with_connections, callback) {
         $('#' + model + 's').html(loading);
-        $.getJSON('/json/' + model + 's' +
-            ($.isArray(only_with_connections) ? ('/' + only_with_connections.join('-')) : ''),
-            (function(callback){ return function (_data) {
-
-            if (_data['status'] == 200) {
-                $('#' + model + 's').html('');
-                var opposing_model = get_opposing_model(model);
-                $.each(_data['data'], function (i, elem) {
-                    var opposing_model_from_latest_run = elem.latest_run[opposing_model];
-                    $('#' + model + 's').append(
-                        '<li class="list-group-item px-1' + (typeof(elem.active) != 'undefined' && !elem.active ?
-                        ' list-group-item-light" title="currently inactive"' : '"') + '>' +
-                        '<div class="d-flex flex-row">' +
-                        '<div class="pr-2">' +
-                        '<input type="checkbox" data-uid="' + elem.uid + '">' +
-                        '</div>' +
-                        '<div class="">' +
-                        '<a href="/' + model + '/' + elem.uid + '" class="d-block' +
-                        (typeof(elem.active) != 'undefined' && !elem.active ? ' text-muted' : '') + '">' +
-                        elem.name +
-                        '</a>' +
-                        (elem.description ? (
-                            '<p class="mb-1">' +
-                            elem.description.replace(/\r\n|\r|\n/g, '<br />') +
-                            '</p>'
-                        ) : '') +
-                        (elem.latest_run ? (
-                            '<small class="text-muted">Last run was <a href="/' + opposing_model + '/' +
-                            opposing_model_from_latest_run.uid + '">' +
-                            opposing_model_from_latest_run.name.substr(0, 12) +
-                            (opposing_model_from_latest_run.name.length > 12 ? '...' : '') +
-                            '</a> on <a href="/json/run/' + elem.latest_run.uid + '">' +
-                            elem.latest_run.created + '</a></small>'
-                        ) : '') +
-                        '</div>' +
-                        '</div>' +
-                        '</li>');
-                });
-                update_status(model);
-                init_run_detail_view_handler();
-                init_instance_recipe_connector(model);
-                if(typeof(callback) == 'function') {
-                    callback();
+        var fifo_element = Math.random();
+        refresh_fifo[model].push(fifo_element);
+        $.ajax({
+            url: '/json/' + model + 's',
+            method: 'POST',
+            dataType: 'json',
+            data: ($.isArray(only_with_connections) ? JSON.stringify({uids: only_with_connections}) : '{}'),
+            processData: false,
+            success: (function (callback, fifo_element) {
+                return function (_data) {
+                    if ((refresh_fifo[model].indexOf(fifo_element)+1) == refresh_fifo[model].length) {
+                        if (_data['status'] == 200) {
+                            $('#' + model + 's').html('');
+                            var opposing_model = get_opposing_model(model);
+                            $.each(_data['data'], function (i, elem) {
+                                var opposing_model_from_latest_run = elem.latest_run[opposing_model];
+                                $('#' + model + 's').append(
+                                    '<li class="list-group-item px-1' + (typeof (elem.active) != 'undefined' && !elem.active ?
+                                    ' list-group-item-light" title="currently inactive"' : '"') + '>' +
+                                    '<div class="d-flex flex-row">' +
+                                    '<div class="pr-2">' +
+                                    '<input type="checkbox" data-uid="' + elem.uid + '">' +
+                                    '</div>' +
+                                    '<div class="">' +
+                                    '<a href="/' + model + '/' + elem.uid + '" class="d-block' +
+                                    (typeof (elem.active) != 'undefined' && !elem.active ? ' text-muted' : '') + '">' +
+                                    elem.name +
+                                    '</a>' +
+                                    (elem.description ? (
+                                        '<p class="mb-1">' +
+                                        elem.description.replace(/\r\n|\r|\n/g, '<br />') +
+                                        '</p>'
+                                    ) : '') +
+                                    (elem.latest_run ? (
+                                        '<small class="text-muted">Last run was <a href="/' + opposing_model + '/' +
+                                        opposing_model_from_latest_run.uid + '">' +
+                                        opposing_model_from_latest_run.name.substr(0, 12) +
+                                        (opposing_model_from_latest_run.name.length > 12 ? '...' : '') +
+                                        '</a> on <a href="/json/run/' + elem.latest_run.uid + '">' +
+                                        elem.latest_run.created + '</a></small>'
+                                    ) : '') +
+                                    '</div>' +
+                                    '</div>' +
+                                    '</li>');
+                            });
+                            update_status(model);
+                            init_run_detail_view_handler();
+                            init_instance_recipe_connector(model);
+                            if (typeof (callback) == 'function') {
+                                callback();
+                            }
+                        } else {
+                            $('#' + model + 's').html(error.replace('###', _data['message']));
+                        }
+                    }
+                    refresh_fifo[model].splice(refresh_fifo[model].indexOf(fifo_element), 1);
                 }
-            } else {
-                $('#' + model + 's').html(error.replace('###', _data['message']));
-            }
-        }})(callback));
+            })(callback, fifo_element)
+        });
     }
     function init_instance_recipe_connector(model) {
         $('#' + model + 's input[type="checkbox"][data-uid]').off('change').on('change', function() {
