@@ -67,7 +67,11 @@ Finally, note that Selenium and the ScrapeBot require RAM, something the Raspber
 ***tl;dr**:* *Don't do it unless necessary. And if so, use Chrome but do not take screenshots.* 
 
 ## 3. Installing the web frontend
-By following the installation guidelines from above, you have also installed all the prerequisites for the web frontend. Despite these prerequisites, though, no web server is yet in place to serve it. This is only required on one instance, obviously, and it can even run on a separate machine without the instance being run regularly. Wherever it may be, here is a short installation guide for the web frontend (again, after (!) you have successfully finished setting up the above).
+By following the installation guidelines from above, you have also installed all the prerequisites for the web frontend. Despite these prerequisites, though, no web server is yet in place to serve it. This is only required on one instance, obviously, and it can even run on a separate machine without the instance being run regularly. 
+
+The web frontend allows you to overlook instances (see screenshots from the [dashboard](readme_screenshots/dashboard.jpg) and the [instance detail view](readme_screenshots/instance.jpg)), configure recipes (see screenshots from the [recipe detail view](readme_screenshots/recipe.jpg) and the [recipe-step configuration](readme_screenshots/recipe_step.jpg)), export the recipes to replicable `.sbj` files (see a [screenshot of a .sbj file](readme_screenshots/export.jpg)), and check the log files from individual runs (see the [screenshot of a run log](readme_screenshots/run.jpg)).
+
+Here is a short installation guide for the web frontend (again, after (!) you have successfully finished setting up the above).
 
 1. First, we need to install the actual web server, or servers for that matter. As we are dealing with a Python Flask app on Unix, we'll use [gunicorn](https://gunicorn.org/) to serve the Python app internally, [nginx](https://www.nginx.com/) as an external web server, and [supervisor](http://supervisord.org/) to ensure availability.
     ```
