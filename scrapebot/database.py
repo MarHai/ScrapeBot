@@ -370,15 +370,15 @@ class RecipeStep(base):
         :return:
         """
         if self.use_data_item_instead_of_value:
-            data_item_step_id = int(self.value)
+            data_item_step_sort = int(self.value)
             for data in run.data:
-                if data.step.uid is data_item_step_id:
-                    self.value = data.value
+                if data.step.sort is data_item_step_sort:
+                    self.value = str(data.value)
                     run.log.append(Log(message='"' + data.value + '" as value loaded from data'))
                     break
         elif self.use_random_item_instead_of_value:
             item = self.find_random_item()
-            self.value = item.value
+            self.value = str(item.value)
             self.data.append(Data(run=run, value=self.value))
             run.log.append(Log(message='"' + item.value + '" randomly selected'))
         return run.process(config, self, prior_step)
