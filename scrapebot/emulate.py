@@ -109,7 +109,7 @@ class Emulator:
                 run.log.append(Log(message='Running on a virtual display at ' + str(display_width) + ' by ' +
                                            str(display_height)))
             if browser == 'Firefox':
-                gecko = '32' if platform.architecture()[0].startswith('32') else '64'
+                gecko = '64' if '64' in platform.machine() else '32'
                 if platform.system() == 'Linux':
                     if platform.machine().lower().startswith('arm'):
                         gecko = lib_prefix + 'lib/geckodriver-arm-v0.23'
