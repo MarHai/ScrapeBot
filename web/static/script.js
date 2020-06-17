@@ -27,7 +27,10 @@ $(function(){
                             $('#' + model + 's').html('');
                             var opposing_model = get_opposing_model(model);
                             $.each(_data['data'], function (i, elem) {
-                                var opposing_model_from_latest_run = elem.latest_run[opposing_model];
+                                var opposing_model_from_latest_run = '';
+                                if (typeof(elem.latest_run) !== 'undefined') {
+                                    opposing_model_from_latest_run = elem.latest_run[opposing_model];
+                                }
                                 $('#' + model + 's').append(
                                     '<li class="list-group-item px-1' + (typeof (elem.active) != 'undefined' && !elem.active ?
                                     ' list-group-item-light" title="currently inactive"' : '"') + '>' +
