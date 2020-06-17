@@ -11,6 +11,7 @@ from pyvirtualdisplay import Display
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException, NoSuchElementException
 from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
+import urllib3
 
 
 class RecipeStepTypeEnum(enum.Enum):
@@ -50,6 +51,10 @@ class RecipeStepTypeEnum(enum.Enum):
 
     log = '. Simply log "value" into the log file'
     data = '. Store "value" as data entry'
+    post_all_data = '. Perform a POST request to the given URL (value) with all collected data from the current run ' \
+                    'as simplified "data" array'
+    post_previous_step_data = '. Perform a POST request to the given URL (value) with collected data from the ' \
+                              'previous step as simplified "data" array'
     execute_js = '. Execute "value" as JavaScript code (store any returned value as data)'
     go_back = '<- Go back one step in the browser history'
     go_forward = '-> Go forward one step in the browser history (only available if you went back before)'
@@ -223,6 +228,18 @@ class Emulator:
             run.log.append(Log(message=step.value))
         elif step.type.name == 'data':
             run.data.append(Data(step=step, value=step.value))
+        elif step.type.name == 'post_all_data' or step.type.name == 'post_previous_step_data':
+            post_data = {}
+            for data in run.data:
+                if step.type.name == 'post_all_data' or (prior_step is not None and data.step.uid is prior_step.uid):
+                    post_data['data[' + str(len(post_data)) + ']'] = data.value
+            if len(post_data) > 0:
+                http = urllib3.PoolManager()
+                response = http.request('POST', step.value, fields=post_data)
+                run.log.append(Log(message='Posted %d data values collected thus far to %s (HTTP status was %d)' %
+                                           (len(post_data), step.value, response.status)))
+            else:
+                run.log.append(Log(message='Attempted to post data to %s but nothing was stored so far' % step.value))
         elif step.type.name == 'execute_js':
             return_value = self.__selenium.execute_script(step.value)
             if return_value:
@@ -312,7 +329,7 @@ class Emulator:
                 for late_run in latest_runs:
                     if screenshot:
                         for single_data in late_run.data:
-                            if single_data.step is step and single_data.value is not '':
+                            if single_data.step is step and single_data.value != '':
                                 screenshot = False
                                 run.log.append(Log(message='No screenshot taken this time'))
                                 break
@@ -554,7 +571,7 @@ class Emulator:
                 }
             )
             screenshot_name = 's3://' + self.__config.get('Database', 'AWSbucket') + '/' + screenshot_name
-            if screenshot_log is '':
+            if screenshot_log == '':
                 screenshot_log = screenshot_name
             else:
                 screenshot_log = screenshot_log + ' and ' + screenshot_name
