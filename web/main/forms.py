@@ -25,7 +25,8 @@ class RecipeDuplicateForm(FlaskForm):
 class RecipeStepForm(FlaskForm):
     type = SelectField('Type', choices=RecipeStepTypeEnum.choices(), coerce=RecipeStepTypeEnum.coerce)
     value = TextAreaField('Value (if needed)')
-    use_random_item_instead_of_value = BooleanField('Randomly pick an item (value is ignored)')
+    use_random_item_instead_of_value = BooleanField('Randomly pick an item')
+    use_data_item_instead_of_value = BooleanField('Use stored data as value')
     active = BooleanField('Activated', default=True)
     submit = SubmitField('Save')
 

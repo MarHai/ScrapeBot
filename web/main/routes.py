@@ -71,7 +71,7 @@ def instance(instance_uid):
             for temp_recipe in user_recipes:
                 temp_order = db.session.query(RecipeOrder).filter(RecipeOrder.recipe == temp_recipe,
                                                                   RecipeOrder.instance == temp_instance).first()
-                if request.form.get('recipe_' + str(temp_recipe.uid)) is 'y':
+                if request.form.get('recipe_' + str(temp_recipe.uid)) == 'y':
                     if temp_order is None:
                         temp_recipe.instances.append(RecipeOrder(instance=temp_instance))
                 elif temp_order is not None:
@@ -141,7 +141,7 @@ def recipe(recipe_uid):
         temp_recipe.cookies = form.cookies.data
         temp_recipe.active = form.active.data
         for temp_instance in instances:
-            if request.form.get('instance_' + str(temp_instance.uid)) is 'y':
+            if request.form.get('instance_' + str(temp_instance.uid)) == 'y':
                 temp_order = None
                 if recipe_uid is not None:
                     temp_order = db.session.query(RecipeOrder).filter(RecipeOrder.recipe == temp_recipe,
@@ -243,7 +243,7 @@ def recipe_remove_privilege(recipe_uid, privilege_uid):
 @login_required
 def recipe_multiple_action(recipe_uids, deactivate):
     recipe_uids = [int(uid) for uid in str(recipe_uids).split('-')]
-    deactivate = True if int(deactivate) is 1 else False
+    deactivate = True if int(deactivate) == 1 else False
     changes = 0
     for recipe_uid in recipe_uids:
         temp_recipe = db.session.query(Recipe).filter(Recipe.uid == recipe_uid).first()
@@ -285,6 +285,7 @@ def recipe_export(recipe_uid):
             'type': temp_step.type.name,
             'value': temp_step.value,
             'use_random_item_instead_of_value': temp_step.use_random_item_instead_of_value,
+            'use_data_item_instead_of_value': temp_step.use_data_item_instead_of_value,
             'active': temp_step.active,
             'random_items': []
         }
@@ -320,6 +321,8 @@ def recipe_import():
                 type=RecipeStepTypeEnum[RecipeStepTypeEnum.coerce(temp_step['type'])],
                 value=temp_step['value'],
                 use_random_item_instead_of_value=True if temp_step['use_random_item_instead_of_value'] else False,
+                use_data_item_instead_of_value=True if ('use_data_item_instead_of_value' in temp_step and
+                                                        temp_step['use_data_item_instead_of_value']) else False,
                 active=True if temp_step['active'] else False
             )
             for temp_item in temp_step['random_items']:
@@ -405,6 +408,7 @@ def init_threaded_duplication(web, user, form, temp_recipe, instances, form_subm
                     type=temp_step.type,
                     value=temp_step.value,
                     use_random_item_instead_of_value=temp_step.use_random_item_instead_of_value,
+                    use_data_item_instead_of_value=temp_step.use_data_item_instead_of_value,
                     active=temp_step.active
                 )
                 for temp_item in temp_step.items:
@@ -422,7 +426,7 @@ def init_threaded_duplication(web, user, form, temp_recipe, instances, form_subm
             instance_count = 0
             for temp_instance in instances:
                 if ('instance_' + str(temp_instance.uid)) in form_submitted:
-                    if form_submitted['instance_' + str(temp_instance.uid)] is 'y':
+                    if form_submitted['instance_' + str(temp_instance.uid)] == 'y':
                         instance_count = instance_count + 1
                         new_recipe.instances.append(RecipeOrder(instance=temp_instance))
             db.session.add(new_recipe)
@@ -462,6 +466,7 @@ def step(recipe_uid, step_uid):
         temp_step.type = RecipeStepTypeEnum[RecipeStepTypeEnum.coerce(form_step.type.data)]
         temp_step.value = form_step.value.data
         temp_step.use_random_item_instead_of_value = form_step.use_random_item_instead_of_value.data
+        temp_step.use_data_item_instead_of_value = form_step.use_data_item_instead_of_value.data
         temp_step.active = form_step.active.data
         if step_uid is None:
             temp_recipe.steps.append(temp_step)
@@ -482,6 +487,7 @@ def step(recipe_uid, step_uid):
         form_step.type.data = temp_step.type.name
         form_step.value.data = temp_step.value
         form_step.use_random_item_instead_of_value.data = temp_step.use_random_item_instead_of_value
+        form_step.use_data_item_instead_of_value.data = temp_step.use_data_item_instead_of_value
         form_step.active.data = temp_step.active
     return render_template(
         'main/recipe_step.html',
@@ -544,7 +550,7 @@ def item(recipe_uid, step_uid, item_uid, delete):
                 temp_item.value = form.value.data
                 db.session.commit()
                 return redirect(url_for('main.step', recipe_uid=recipe_uid, step_uid=step_uid))
-            elif int(delete) is 1:
+            elif int(delete) == 1:
                 # delete
                 db.session.delete(temp_item)
                 return redirect(url_for('main.step', recipe_uid=recipe_uid, step_uid=step_uid))

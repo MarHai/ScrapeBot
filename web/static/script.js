@@ -334,4 +334,46 @@ $(function(){
             });
         });
     });
+
+
+    /**
+     * RecipeStep value handling
+     */
+    $('#value-tab a[data-toggle="tab"]').on('shown.bs.tab', function (event) {
+        switch (event.target.id) {
+            case 'vtab-default':
+                $('#use_data_item_instead_of_value').get(0).checked = false;
+                $('#use_random_item_instead_of_value').get(0).checked = false;
+                $('#value').focus();
+                break;
+            case 'vtab-data':
+                $('#use_data_item_instead_of_value').get(0).checked = true;
+                $('#use_random_item_instead_of_value').get(0).checked = false;
+                var value_text = $('#value').val().trim();
+                if ($('#v-data-step option[value="' + value_text + '"]').length > 0) {
+                    $('#v-data-step').val(value_text).change();
+                } else {
+                    $('#v-data-step').val('').change();
+                }
+                break;
+            case 'vtab-item':
+                $('#use_data_item_instead_of_value').get(0).checked = false;
+                $('#use_random_item_instead_of_value').get(0).checked = true;
+                $('#value').val('');
+                break;
+        }
+    });
+    $('#v-data-step').on('change', function (event) {
+        $('#value').val($(event.target).val());
+    });
+    //call initially
+    if ($('#use_data_item_instead_of_value').length > 0) {
+        if ($('#use_data_item_instead_of_value').get(0).checked) {
+            $('#vtab-data').click();
+        } else if ($('#use_random_item_instead_of_value').get(0).checked) {
+            $('#vtab-item').click();
+        } else {
+            $('#vtab-default').click();
+        }
+    }
 });

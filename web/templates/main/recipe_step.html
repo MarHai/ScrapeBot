@@ -18,23 +18,48 @@
                         on Selenium's online help pages.
                     </small>
                 </p>
-                {% if step.use_random_item_instead_of_value == 1 %}
-                    {{ wtf.form_field(form_step.value, disabled=True) }}
-                {% else %}
-                    {{ wtf.form_field(form_step.value) }}
-                {% endif %}
-                <p class="mb-4">
-                    <small class="form-text text-muted">
-                        The value's use is determined by the chosen type.
-                        For example, a "log" type means that the value is written to the log file directly.
-                        A "find_by_id" type requires value to be the ID of the element to identify.
-                        Also note that if you choose to randomly pick an item (checkbox below), this value field is ignored.
-                    </small>
-                </p>
-                {{ wtf.form_field(form_step.use_random_item_instead_of_value) }}
-                <p class="mb-4">
-                    <small class="form-text text-muted">The list of items can be maintained after saving this step.</small>
-                </p>
+                <label class="form-control-label mt-4">Value</label>
+                <nav>
+                    <div class="nav nav-tabs" id="value-tab" role="tablist">
+                        <a class="nav-item nav-link active" id="vtab-default" data-toggle="tab" href="#v-default" role="tab" aria-controls="v-default" aria-selected="true">Enter manually</a>
+                        <a class="nav-item nav-link" id="vtab-data" data-toggle="tab" href="#v-data" role="tab" aria-controls="v-data" aria-selected="false">Use data</a>
+                        <a class="nav-item nav-link" id="vtab-item" data-toggle="tab" href="#v-item" role="tab" aria-controls="v-item" aria-selected="false">Randomly pick from list</a>
+                    </div>
+                </nav>
+                <div class="tab-content border-bottom mb-4 pt-2" id="nav-tabContent">
+                    <div class="tab-pane fade show active" id="v-default" role="tabpanel" aria-labelledby="vtab-default">
+                        {{ wtf.form_field(form_step.value) }}
+                        <p class="mb-4">
+                            <small class="form-text text-muted">
+                                The value's use is determined by the chosen type.
+                                For example, a "log" type means that the value is written to the log file directly.
+                                A "find_by_id" type requires value to be the ID of the element to identify.
+                            </small>
+                        </p>
+                    </div>
+                    <div class="tab-pane fade" id="v-data" role="tabpanel" aria-labelledby="vtab-data">
+                        {{ wtf.form_field(form_step.use_data_item_instead_of_value) }}
+                        <select id="v-data-step" class="form-control">
+                            <option value="">-- no step selected to use data from --</option>
+                            {% for step_option in recipe.steps %}
+                                {% if step_option.sort < step.sort %}
+                                    <option value="{{ step_option.sort }}">
+                                        {{ step_option.sort }}. {{ step_option.type.name }}
+                                    </option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                        <p class="mb-4">
+                            <small class="form-text text-muted">After changing this value, you may want to save.</small>
+                        </p>
+                    </div>
+                    <div class="tab-pane fade" id="v-item" role="tabpanel" aria-labelledby="vtab-item">
+                        {{ wtf.form_field(form_step.use_random_item_instead_of_value) }}
+                        <p class="mb-4">
+                            <small class="form-text text-muted">After changing this value, you need to save.</small>
+                        </p>
+                    </div>
+                </div>
                 {{ wtf.form_field(form_step.active) }}
                 <div class="text-right">
                     {{ wtf.form_field(form_step.submit) }}

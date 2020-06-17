@@ -136,7 +136,9 @@
                                 <th scope="row">{{ step.sort }}</th>
                                 <td>{{ step.type.name }}</td>
                                 <td>
-                                    {% if step.use_random_item_instead_of_value %}
+                                    {% if step.use_data_item_instead_of_value %}
+                                        <em>Use first stored data from step #{{ step.value }}.</em>
+                                    {% elif step.use_random_item_instead_of_value %}
                                         {% if step.items|length == 0 %}
                                             <em>Random pick, but no items configured.</em><br />
                                             <a href="{{ url_for('main.item', recipe_uid=recipe.uid, step_uid=step.uid) }}">Add an item now</a>
@@ -149,7 +151,7 @@
                                                 {% elif loop.index == 4 %}
                                                     <li>
                                                         ...<br />
-                                                        <small class="text-muted">(edit step for full list)</small>
+                                                        <small class="text-muted">(<a href="{{ url_for('main.step', recipe_uid=recipe.uid, step_uid=step.uid) }}">edit step</a> for full list)</small>
                                                     </li>
                                                 {% endif %}
                                             {% endfor %}

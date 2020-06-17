@@ -342,6 +342,7 @@ class RecipeStep(base):
     type = Column(Enum(RecipeStepTypeEnum), default=RecipeStepTypeEnum.log)
     value = Column(Text)
     use_random_item_instead_of_value = Column(Boolean, default=False)
+    use_data_item_instead_of_value = Column(Boolean, default=False)
     items = relationship('RecipeStepItem', back_populates='step', order_by='RecipeStepItem.created')
     active = Column(Boolean, default=False)
     recipe_uid = Column(Integer, ForeignKey('recipe.uid'))
@@ -368,7 +369,14 @@ class RecipeStep(base):
         :param prior_step:
         :return:
         """
-        if self.use_random_item_instead_of_value:
+        if self.use_data_item_instead_of_value:
+            data_item_step_id = int(self.value)
+            for data in run.data:
+                if data.step.uid is data_item_step_id:
+                    self.value = data.value
+                    run.log.append(Log(message='"' + data.value + '" as value loaded from data'))
+                    break
+        elif self.use_random_item_instead_of_value:
             item = self.find_random_item()
             self.value = item.value
             self.data.append(Data(run=run, value=self.value))
@@ -383,6 +391,7 @@ class RecipeStep(base):
             'type': self.type.name,
             'value': self.value,
             'use_random_item_instead_of_value': self.use_random_item_instead_of_value,
+            'use_data_item_instead_of_value': self.use_data_item_instead_of_value,
             'active': self.active,
             'recipe': self.recipe.jsonify()
         }
