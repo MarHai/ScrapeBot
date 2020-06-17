@@ -21,7 +21,7 @@ Installation varies depending on your operating system. The most common way to u
 1. The easiest server version to get started with is a 64-bit Ubuntu [EC2 instance](https://aws.amazon.com), such as AWS' "Ubuntu Server 18.04 LTS" free tier. Launch that and SSH into it.
 1. Update the available package-manager repositories. Afterwards, we need to install four things:
     - PIP for the 3.x [Python](https://www.python.org/downloads/) environment
-    - A browser of your choice. I'll use [Firefox](https://www.mozilla.org/en-US/firefox/), which is easily avilable through EC2's apt-get repositories.
+    - A browser of your choice. I'll use [Firefox](https://www.mozilla.org/en-US/firefox/), which is easily avilable through EC2's apt-get repositories. Note that version 60 or above is required.
     - If you are on a Unix system, such as our free EC2 tier, you do not have a GUI but you will need one (or simulate one, for that matter). I'll use an [X11 display](https://en.wikipedia.org/wiki/Xvfb).
     - Git to later get the latest version of ScrapeBot.
     ```
