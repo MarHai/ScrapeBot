@@ -111,6 +111,7 @@ def make_recipe_step(recipe):
     step.recipe = recipe
     step.recipe_uid = recipe.uid
     step.use_random_item_instead_of_value = False
+    step.use_data_item_instead_of_value = 0
     step.type = RecipeStepTypeEnum.log
     step.value = 'test log from step'
     step.active = True

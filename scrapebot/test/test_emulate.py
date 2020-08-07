@@ -78,12 +78,12 @@ class TestEmulator(object):
         steps = [
             RecipeStep(sort=1, type=RecipeStepTypeEnum.navigate, value='https://www.google.com'),
             RecipeStep(sort=2, type=RecipeStepTypeEnum.find_by_name, value='q'),
-            RecipeStep(sort=3, type=RecipeStepTypeEnum.write_slowly, value='computational communication science'),
+            RecipeStep(sort=3, type=RecipeStepTypeEnum.write_slowly, value='computational methods'),
             RecipeStep(sort=4, type=RecipeStepTypeEnum.submit),
             RecipeStep(sort=5, type=RecipeStepTypeEnum.pause, value='2'),
             RecipeStep(sort=6, type=RecipeStepTypeEnum.scroll_to, value='-1'),
             RecipeStep(sort=7, type=RecipeStepTypeEnum.find_by_css,
-                       value='#rso div[data-ved]:not([class]):not([id]) a:not([class]):not([id])'),
+                       value='#rso div[data-ved] div.r a:not([class]):not([id])'),
             RecipeStep(sort=8, type=RecipeStepTypeEnum.get_attributes, value='href')
         ]
         for step in steps:
