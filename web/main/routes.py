@@ -321,8 +321,7 @@ def recipe_import():
                 type=RecipeStepTypeEnum[RecipeStepTypeEnum.coerce(temp_step['type'])],
                 value=temp_step['value'],
                 use_random_item_instead_of_value=True if temp_step['use_random_item_instead_of_value'] else False,
-                use_data_item_instead_of_value=True if ('use_data_item_instead_of_value' in temp_step and
-                                                        temp_step['use_data_item_instead_of_value']) else False,
+                use_data_item_instead_of_value=temp_step['use_data_item_instead_of_value'] if 'use_data_item_instead_of_value' in temp_step else 0,
                 active=True if temp_step['active'] else False
             )
             for temp_item in temp_step['random_items']:
@@ -466,7 +465,11 @@ def step(recipe_uid, step_uid):
         temp_step.type = RecipeStepTypeEnum[RecipeStepTypeEnum.coerce(form_step.type.data)]
         temp_step.value = form_step.value.data
         temp_step.use_random_item_instead_of_value = form_step.use_random_item_instead_of_value.data
-        temp_step.use_data_item_instead_of_value = form_step.use_data_item_instead_of_value.data
+        if form_step.use_data_item_instead_of_value.data:
+            temp_step.use_data_item_instead_of_value = form_step.value.data
+            temp_step.value = ''
+        else:
+            temp_step.use_data_item_instead_of_value = 0
         temp_step.active = form_step.active.data
         if step_uid is None:
             temp_recipe.steps.append(temp_step)
@@ -488,6 +491,11 @@ def step(recipe_uid, step_uid):
         form_step.value.data = temp_step.value
         form_step.use_random_item_instead_of_value.data = temp_step.use_random_item_instead_of_value
         form_step.use_data_item_instead_of_value.data = temp_step.use_data_item_instead_of_value
+        if temp_step.use_data_item_instead_of_value > 0:
+            form_step.use_data_item_instead_of_value.data = True
+            form_step.value.data = temp_step.use_data_item_instead_of_value
+        else:
+            form_step.use_data_item_instead_of_value.data = False
         form_step.active.data = temp_step.active
     return render_template(
         'main/recipe_step.html',

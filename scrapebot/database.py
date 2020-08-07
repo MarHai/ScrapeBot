@@ -342,7 +342,7 @@ class RecipeStep(base):
     type = Column(Enum(RecipeStepTypeEnum), default=RecipeStepTypeEnum.log)
     value = Column(Text)
     use_random_item_instead_of_value = Column(Boolean, default=False)
-    use_data_item_instead_of_value = Column(Boolean, default=False)
+    use_data_item_instead_of_value = Column(Integer, default=0)
     items = relationship('RecipeStepItem', back_populates='step', order_by='RecipeStepItem.created')
     active = Column(Boolean, default=False)
     recipe_uid = Column(Integer, ForeignKey('recipe.uid'))
@@ -369,8 +369,8 @@ class RecipeStep(base):
         :param prior_step:
         :return:
         """
-        if self.use_data_item_instead_of_value:
-            data_item_step_sort = int(self.value)
+        if self.use_data_item_instead_of_value > 0:
+            data_item_step_sort = int(self.use_data_item_instead_of_value)
             for data in run.data:
                 if data.step.sort is data_item_step_sort:
                     self.value = str(data.value)
