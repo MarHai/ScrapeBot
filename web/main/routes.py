@@ -465,7 +465,7 @@ def step(recipe_uid, step_uid):
         temp_step.type = RecipeStepTypeEnum[RecipeStepTypeEnum.coerce(form_step.type.data)]
         temp_step.value = form_step.value.data
         temp_step.use_random_item_instead_of_value = form_step.use_random_item_instead_of_value.data
-        if form_step.use_data_item_instead_of_value.data:
+        if form_step.use_data_item_instead_of_value.data == 'y':
             temp_step.use_data_item_instead_of_value = form_step.value.data
             temp_step.value = ''
         else:
