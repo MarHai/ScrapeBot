@@ -136,8 +136,8 @@
                                 <th scope="row">{{ step.sort }}</th>
                                 <td>{{ step.type.name }}</td>
                                 <td>
-                                    {% if step.use_data_item_instead_of_value %}
-                                        <em>Use first stored data from step #{{ step.value }}.</em>
+                                    {% if step.use_data_item_instead_of_value > 0 %}
+                                        <em>Use first stored data from step #{{ step.use_data_item_instead_of_value }}.</em>
                                     {% elif step.use_random_item_instead_of_value %}
                                         {% if step.items|length == 0 %}
                                             <em>Random pick, but no items configured.</em><br />

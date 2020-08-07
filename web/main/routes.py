@@ -465,7 +465,7 @@ def step(recipe_uid, step_uid):
         temp_step.type = RecipeStepTypeEnum[RecipeStepTypeEnum.coerce(form_step.type.data)]
         temp_step.value = form_step.value.data
         temp_step.use_random_item_instead_of_value = form_step.use_random_item_instead_of_value.data
-        if form_step.use_data_item_instead_of_value.data == 'y':
+        if form_step.use_data_item_instead_of_value.data:
             temp_step.use_data_item_instead_of_value = form_step.value.data
             temp_step.value = ''
         else:
@@ -488,14 +488,13 @@ def step(recipe_uid, step_uid):
         return redirect(url_for('main.step', recipe_uid=recipe_uid, step_uid=step_uid))
     if temp_step is not None:
         form_step.type.data = temp_step.type.name
-        form_step.value.data = temp_step.value
         form_step.use_random_item_instead_of_value.data = temp_step.use_random_item_instead_of_value
-        form_step.use_data_item_instead_of_value.data = temp_step.use_data_item_instead_of_value
         if temp_step.use_data_item_instead_of_value > 0:
             form_step.use_data_item_instead_of_value.data = True
             form_step.value.data = temp_step.use_data_item_instead_of_value
         else:
             form_step.use_data_item_instead_of_value.data = False
+            form_step.value.data = temp_step.value
         form_step.active.data = temp_step.active
     return render_template(
         'main/recipe_step.html',

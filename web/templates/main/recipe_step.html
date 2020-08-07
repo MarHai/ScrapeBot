@@ -42,7 +42,7 @@
                         <select id="v-data-step" class="form-control">
                             <option value="">-- no step selected to use data from --</option>
                             {% for step_option in recipe.steps %}
-                                {% if step_option.sort < step.sort %}
+                                {% if step is none or step_option.sort < step.sort %}
                                     <option value="{{ step_option.sort }}">
                                         {{ step_option.sort }}. {{ step_option.type.name }}
                                     </option>
