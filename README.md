@@ -128,6 +128,9 @@ Finally, a ```config.ini``` file is always unique for one instance. And as such,
 - **BrowserWidth** and **BrowserHeight** define (in pixels) the size of the browser window to emulate. Use 1024 and 768 if unsure.
 - For screenshots to be taken and stored locally, a **ScreenshotDirectory** could be specified. Default is the ```screenshots/``` sub directory. Alternatively, you can upload screenshots to an Amazon S3 bucket. In this case, go ahead and configure *AWSaccess*, *AWSsecret*, and *AWSbucket* under Database, this setting is then ignored.
 
+## Retrieving collected data
+Depending on the amount of data collected, you can then easily download collected data through the web frontend as CSV file(s) or use the [R package ScrapeBotR](https://github.com/MarHai/ScrapeBotR) to directly access your data. While the first option requires a web frontend to be set up, the latter option only asks you to specify your ScrapeBot database using the same credentials as specified in the almighty "config.ini" below **Database**.
+
 ## Replicability
 ScrapeBot offers to export recipes into JSON-encapsulated files. These files are called `.sbj` files (as in **S**crape**B**ot **J**SON) and include all necessary specifications for a recipe, its individual steps and values. Note, that these files do not include any runtime information, such as instances, runs, logs, or collected data.
 
@@ -136,10 +139,16 @@ However, `.sbj` files can also be imported into the system. As such, they depict
 To get you started easily on ScrapeBot, you can find a couple of import-ready `.sbj` files under [recipes/](recipes).  
 
 ## Further information
+There is a publication available to read up on agent-based testing, including some instructionary advice on how to use the ScrapeBot:
+
+Haim, M. (2020). Agent-based testing: An automated approach toward artificial reactions to human behavior. Journalism Studies, 21(7), 895-911. https://dx.doi.org/10.1080/1461670x.2019.1702892
+
 ScrapeBot uses [Selenium WebDriver](https://www.seleniumhq.org/projects/webdriver/) for its browser emulations. As such, it is capable to run with a broad variety of browsers. 
 
 ## Very brief history
 The ScrapeBot was available for quite some time as a CasperJS-based tool which was controlled through a bash script. The latest (stable) release of that version is available as [v1.1](https://github.com/MarHai/ScrapeBot/tree/v1.1) of this repository.
 
 ## Citation
-[Haim, Mario](https://haim.it) (2019): ScrapeBot. A Selenium-based tool for agent-based testing. Source code available at https://github.com/MarHai/ScrapeBot/.
+[Haim, Mario](https://haim.it) (2019). ScrapeBot. A Selenium-based tool for agent-based testing. Source code available at https://github.com/MarHai/ScrapeBot/.
+
+[Haim, Mario](https://haim.it) (2020). Agent-based testing: An automated approach toward artificial reactions to human behavior. Journalism Studies, 21(7), 895-911. https://dx.doi.org/10.1080/1461670x.2019.1702892
