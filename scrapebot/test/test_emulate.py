@@ -112,3 +112,58 @@ class TestEmulator(object):
         assert run.data.__len__() > 0
         last_data_value = run.data.pop().value
         assert last_data_value.__contains__('http')
+
+    def test_check_location(self, connect_db, new_configuration):
+        new_configuration.add_value('Instance', 'BrowserWidth', '1400')
+        new_configuration.add_value('Instance', 'BrowserHeight', '1000')
+        new_configuration.add_value('Instance', 'BrowserGeoLatitude', '51.09102')
+        new_configuration.add_value('Instance', 'BrowserGeoLongitude', '6.5827')
+        user = User(email='mario@haim.it', password='Ak&f(8-fL:')
+        instance = Instance(name='demo_instance')
+        user.instances_owned.append(instance)
+        recipe = Recipe(name='google', active=True)
+        steps = [
+            RecipeStep(sort=1, type=RecipeStepTypeEnum.navigate, value='https://www.google.com'),
+            RecipeStep(sort=2, type=RecipeStepTypeEnum.pause, value='1'),
+            RecipeStep(sort=3, type=RecipeStepTypeEnum.execute_js,
+                       value='if(document.getElementById(\'jYfXMb\')) '
+                             'document.getElementById(\'jYfXMb\').scrollBy(0, 10000);'),
+            RecipeStep(sort=4, type=RecipeStepTypeEnum.find_by_xpath, value='//button/div[text()="Ich stimme zu"]'),
+            RecipeStep(sort=5, type=RecipeStepTypeEnum.click),
+            RecipeStep(sort=6, type=RecipeStepTypeEnum.find_by_name, value='q'),
+            RecipeStep(sort=7, type=RecipeStepTypeEnum.write_slowly, value='where am i'),
+            RecipeStep(sort=8, type=RecipeStepTypeEnum.submit),
+            RecipeStep(sort=9, type=RecipeStepTypeEnum.pause, value='1'),
+            RecipeStep(sort=11, type=RecipeStepTypeEnum.execute_js, value='document.body.scrollBy(0, 10000);'),
+            RecipeStep(sort=12, type=RecipeStepTypeEnum.find_by_css, value='#fbar .fbar'),
+            RecipeStep(sort=13, type=RecipeStepTypeEnum.get_texts),
+            RecipeStep(sort=21, type=RecipeStepTypeEnum.navigate, value='https://tools.keycdn.com/geo'),
+            RecipeStep(sort=22, type=RecipeStepTypeEnum.find_by_tag, value='dl'),
+            RecipeStep(sort=23, type=RecipeStepTypeEnum.get_text)
+        ]
+        for step in steps:
+            recipe.steps.append(step)
+        user.recipes_owned.append(recipe)
+        connect_db.add(user)
+        connect_db.add(RecipeOrder(recipe=recipe, instance=instance))
+        connect_db.commit()
+
+        assert connect_db.query(Instance).count() == 1
+        assert connect_db.query(Recipe).count() == 1
+        assert connect_db.query(User).count() == 1
+        assert connect_db.query(RecipeStep).count() == steps.__len__()
+
+        run = Run(instance=instance, recipe=recipe)
+        for i in range(0, steps.__len__()):
+            assert steps[i].run(new_configuration, run, (None if i == 0 else steps[i-1])) is RunStatusEnum.success
+            if steps[i].temp_result is None and i > 0 and steps[i-1].temp_result is not None:
+                steps[i].temp_result = steps[i-1].temp_result
+        run.end_session()
+        connect_db.add(run)
+        connect_db.commit()
+
+        run = connect_db.query(Run).one_or_none()
+        assert run is not None
+        assert run.data.__len__() > 6
+        assert run.data[3].value.__contains__('Deutschland')
+        assert run.data[7].value.__contains__('Germany')

@@ -108,6 +108,8 @@ class Emulator:
             browser_height = int(self.__config.get('Instance', 'BrowserHeight', fallback=768))
             display_width = int(browser_width*1.2)
             display_height = int(browser_height*1.2)
+            geo_lat = float(self.__config.get('Instance', 'BrowserGeoLatitude', fallback=0.0))
+            geo_lon = float(self.__config.get('Instance', 'BrowserGeoLongitude', fallback=0.0))
             if platform.system() == 'Linux':
                 self.__display = Display(visible=0, size=(display_width, display_height))
                 self.__display.start()
@@ -129,6 +131,17 @@ class Emulator:
                     profile.set_preference('general.useragent.override', user_agent)
                 profile.set_preference('intl.accept_languages', language)
                 run.log.append(Log(message='Browser accept language set to "' + language + '"'))
+                if geo_lat != 0.0 and geo_lon != 0.0:
+                    geo_uri = 'data:application/json,{"location": {"lat": ' + str(geo_lat) + ', "lng": ' \
+                              + str(geo_lon) + '}, "accuracy": 100.0}'
+                    profile.set_preference('geo.enabled', True)
+                    profile.set_preference('geo.wifi.uri', geo_uri)
+                    profile.set_preference('geo.prompt.testing', True)
+                    profile.set_preference('geo.prompt.testing.allow', True)
+                    profile.set_preference('geo.provider.testing', True)
+                    profile.set_preference('geo.provider.network.url', geo_uri)
+                    run.log.append(Log(message='Firefox geolocation set to ' + str(geo_lat) + ', ' + str(geo_lon)))
+
                 if executable == '':
                     self.__selenium = webdriver.Firefox(firefox_profile=profile, executable_path=gecko)
                     run.log.append(Log(message='Browser instance set to Firefox with Geckodriver "' + gecko + '"'))

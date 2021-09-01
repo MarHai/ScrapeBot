@@ -126,6 +126,7 @@ Finally, a ```config.ini``` file is always unique for one instance. And as such,
 - **BrowserUserAgent** overwrites, if set, the default [user-agent string](https://en.wikipedia.org/wiki/User_agent#Use_in_HTTP).
 - **BrowserLanguage** sets the [accept_languages setting](https://www.w3.org/International/questions/qa-lang-priorities). You can use either languages (e.g., "en", "de") or language+region (e.g., "en-us", "en-gb") settings. 
 - **BrowserWidth** and **BrowserHeight** define (in pixels) the size of the browser window to emulate. Use 1024 and 768 if unsure.
+- Using Firefox, you can also use **BrowserGeoLatitude** (e.g., 51.09102) and **BrowserGeoLongitude** (e.g., 6.5827) to set a specified browser location (most websites/platforms overwrite that by information from your IP address though). Do not set or set to "0.0" to ignore.
 - For screenshots to be taken and stored locally, a **ScreenshotDirectory** could be specified. Default is the ```screenshots/``` sub directory. Alternatively, you can upload screenshots to an Amazon S3 bucket. In this case, go ahead and configure *AWSaccess*, *AWSsecret*, and *AWSbucket* under Database, this setting is then ignored.
 
 ## Retrieving collected data
