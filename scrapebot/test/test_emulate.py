@@ -124,10 +124,10 @@ class TestEmulator(object):
         new_configuration.add_value('Instance', 'BrowserHeight', '1000')
         new_configuration.add_value('Instance', 'BrowserGeoLatitude', '51.09102')
         new_configuration.add_value('Instance', 'BrowserGeoLongitude', '6.5827')
-        user = User(email='mario@haim.it', password='Ak&f(8-fL:')
-        instance = Instance(name='demo_instance')
+        user = User(email='oiram@haim.it', password='Ak&f(8-fL:')
+        instance = Instance(name='demo_instance_2')
         user.instances_owned.append(instance)
-        recipe = Recipe(name='google', active=True)
+        recipe = Recipe(name='google_geo', active=True)
         steps = [
             RecipeStep(sort=1, type=RecipeStepTypeEnum.navigate, value='https://www.google.com'),
             RecipeStep(sort=2, type=RecipeStepTypeEnum.pause, value='1'),
@@ -154,10 +154,10 @@ class TestEmulator(object):
         connect_db.add(RecipeOrder(recipe=recipe, instance=instance))
         connect_db.commit()
 
-        assert connect_db.query(Instance).count() == 1
-        assert connect_db.query(Recipe).count() == 1
-        assert connect_db.query(User).count() == 1
-        assert connect_db.query(RecipeStep).count() == steps.__len__()
+        assert connect_db.query(Instance).count() == 2
+        assert connect_db.query(Recipe).count() == 2
+        assert connect_db.query(User).count() == 2
+        assert connect_db.query(RecipeStep).count() > steps.__len__()
 
         run = Run(instance=instance, recipe=recipe)
         for i in range(0, steps.__len__()):
@@ -168,7 +168,7 @@ class TestEmulator(object):
         connect_db.add(run)
         connect_db.commit()
 
-        run = connect_db.query(Run).one_or_none()
+        run = connect_db.query(Run).filter(Run.uid == run.uid).first()
         assert run is not None
         assert run.data.__len__() > 6
         assert run.data[3].value.__contains__('Deutschland')
