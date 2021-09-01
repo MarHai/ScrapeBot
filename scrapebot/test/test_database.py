@@ -13,6 +13,7 @@ def make_user():
     user = User()
     user.created = datetime.now()
     user.uid = random.randint(1, 65535)
+    user.email = 'my@email.com'
     user.active = True
     return user
 

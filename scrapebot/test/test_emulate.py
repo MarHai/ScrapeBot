@@ -77,14 +77,20 @@ class TestEmulator(object):
         recipe = Recipe(name='google', active=True)
         steps = [
             RecipeStep(sort=1, type=RecipeStepTypeEnum.navigate, value='https://www.google.com'),
-            RecipeStep(sort=2, type=RecipeStepTypeEnum.find_by_name, value='q'),
-            RecipeStep(sort=3, type=RecipeStepTypeEnum.write_slowly, value='computational methods'),
-            RecipeStep(sort=4, type=RecipeStepTypeEnum.submit),
-            RecipeStep(sort=5, type=RecipeStepTypeEnum.pause, value='2'),
-            RecipeStep(sort=6, type=RecipeStepTypeEnum.scroll_to, value='-1'),
-            RecipeStep(sort=7, type=RecipeStepTypeEnum.find_by_css,
-                       value='#rso div[data-ved] div.r a:not([class]):not([id])'),
-            RecipeStep(sort=8, type=RecipeStepTypeEnum.get_attributes, value='href')
+            RecipeStep(sort=2, type=RecipeStepTypeEnum.pause, value='1'),
+            RecipeStep(sort=3, type=RecipeStepTypeEnum.execute_js,
+                       value='if(document.getElementById(\'jYfXMb\')) '
+                             'document.getElementById(\'jYfXMb\').scrollBy(0, 10000);'),
+            RecipeStep(sort=4, type=RecipeStepTypeEnum.find_by_xpath, value='//button/div[text()="Ich stimme zu"]'),
+            RecipeStep(sort=5, type=RecipeStepTypeEnum.click),
+            RecipeStep(sort=6, type=RecipeStepTypeEnum.find_by_name, value='q'),
+            RecipeStep(sort=7, type=RecipeStepTypeEnum.write_slowly, value='computational methods'),
+            RecipeStep(sort=8, type=RecipeStepTypeEnum.submit),
+            RecipeStep(sort=9, type=RecipeStepTypeEnum.pause, value='2'),
+            RecipeStep(sort=10, type=RecipeStepTypeEnum.scroll_to, value='-1'),
+            RecipeStep(sort=11, type=RecipeStepTypeEnum.find_by_css,
+                       value='#rso >div >.g a[data-ved]:not([class]), #rso >.g a[data-ved]:not([class])'),
+            RecipeStep(sort=12, type=RecipeStepTypeEnum.get_attributes, value='href')
         ]
         for step in steps:
             recipe.steps.append(step)
