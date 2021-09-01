@@ -129,7 +129,7 @@ class TestEmulator(object):
         recipe = Recipe(name='google_geo', active=True)
         steps = [
             RecipeStep(sort=1, type=RecipeStepTypeEnum.navigate, value='https://www.google.de'),
-            RecipeStep(sort=2, type=RecipeStepTypeEnum.pause, value='2'),
+            RecipeStep(sort=2, type=RecipeStepTypeEnum.pause, value='1'),
             RecipeStep(sort=5, type=RecipeStepTypeEnum.execute_js,
                        value='if(document.getElementById(\'jYfXMb\')) '
                              'document.getElementById(\'jYfXMb\').scrollBy(0, 10000);'),
@@ -138,16 +138,17 @@ class TestEmulator(object):
             RecipeStep(sort=10, type=RecipeStepTypeEnum.find_by_name, value='q'),
             RecipeStep(sort=11, type=RecipeStepTypeEnum.write_slowly, value='where am i'),
             RecipeStep(sort=12, type=RecipeStepTypeEnum.submit),
-            RecipeStep(sort=13, type=RecipeStepTypeEnum.pause, value='1'),
+            RecipeStep(sort=13, type=RecipeStepTypeEnum.pause, value='2'),
             RecipeStep(sort=14, type=RecipeStepTypeEnum.execute_js,
                        value='if(document.getElementsByTagName(\'update-location\').length > 0) '
                              'document.getElementsByTagName(\'update-location\')[0].click();'),
-            RecipeStep(sort=15, type=RecipeStepTypeEnum.pause, value='15'),
+            RecipeStep(sort=15, type=RecipeStepTypeEnum.pause, value='20'),
             RecipeStep(sort=16, type=RecipeStepTypeEnum.execute_js, value='document.body.scrollBy(0, 10000);'),
             RecipeStep(sort=17, type=RecipeStepTypeEnum.find_by_css, value='#fbar .fbar'),
             RecipeStep(sort=18, type=RecipeStepTypeEnum.get_texts),
-            RecipeStep(sort=20, type=RecipeStepTypeEnum.navigate, value='https://tools.keycdn.com/geo'),
-            RecipeStep(sort=21, type=RecipeStepTypeEnum.find_by_tag, value='dl'),
+            RecipeStep(sort=20, type=RecipeStepTypeEnum.navigate, value='https://www.gps-coordinates.net/my-location'),
+            RecipeStep(sort=13, type=RecipeStepTypeEnum.pause, value='10'),
+            RecipeStep(sort=21, type=RecipeStepTypeEnum.find_by_id, value='addr'),
             RecipeStep(sort=22, type=RecipeStepTypeEnum.get_text)
         ]
         for step in steps:
