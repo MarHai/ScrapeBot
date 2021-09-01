@@ -133,14 +133,14 @@ class Emulator:
                 run.log.append(Log(message='Browser accept language set to "' + language + '"'))
                 if geo_lat != 0.0 and geo_lon != 0.0:
                     geo_uri = 'data:application/json,{"location": {"lat": ' + str(geo_lat) + ', "lng": ' \
-                              + str(geo_lon) + '}, "accuracy": 3500.0}'
+                              + str(geo_lon) + '}, "accuracy": 10}'
                     profile.set_preference('geo.enabled', True)
                     profile.set_preference('geo.provider.use_corelocation', False)
                     profile.set_preference('geo.provider.use_gpsd', False)
                     profile.set_preference('geo.provider.use_mls', False)
                     profile.set_preference('geo.provider.ms-windows-location', False)
-                    #profile.set_preference('geo.prompt.testing', True)
-                    #profile.set_preference('geo.prompt.testing.allow', True)
+                    profile.set_preference('geo.prompt.testing', True)
+                    profile.set_preference('geo.prompt.testing.allow', True)
                     profile.set_preference('geo.provider.testing', True)
                     profile.set_preference('geo.provider.network.url', geo_uri)
                     profile.set_preference('geo.wifi.uri', geo_uri)

@@ -120,8 +120,7 @@ class TestEmulator(object):
         assert last_data_value.__contains__('http')
 
     def test_check_location(self, connect_db, new_configuration):
-        new_configuration.add_value('Instance', 'BrowserWidth', '1400')
-        new_configuration.add_value('Instance', 'BrowserHeight', '1000')
+        new_configuration.add_value('Instance', 'BrowserLanguage', 'de-de')
         new_configuration.add_value('Instance', 'BrowserGeoLatitude', '51.09102')
         new_configuration.add_value('Instance', 'BrowserGeoLongitude', '6.5827')
         user = User(email='oiram@haim.it', password='Ak&f(8-fL:')
@@ -129,23 +128,27 @@ class TestEmulator(object):
         user.instances_owned.append(instance)
         recipe = Recipe(name='google_geo', active=True)
         steps = [
-            RecipeStep(sort=1, type=RecipeStepTypeEnum.navigate, value='https://www.google.com'),
-            RecipeStep(sort=2, type=RecipeStepTypeEnum.pause, value='1'),
-            RecipeStep(sort=3, type=RecipeStepTypeEnum.execute_js,
+            RecipeStep(sort=1, type=RecipeStepTypeEnum.navigate, value='https://www.google.de'),
+            RecipeStep(sort=2, type=RecipeStepTypeEnum.pause, value='2'),
+            RecipeStep(sort=5, type=RecipeStepTypeEnum.execute_js,
                        value='if(document.getElementById(\'jYfXMb\')) '
                              'document.getElementById(\'jYfXMb\').scrollBy(0, 10000);'),
-            RecipeStep(sort=4, type=RecipeStepTypeEnum.find_by_xpath, value='//button/div[text()="Ich stimme zu"]'),
-            RecipeStep(sort=5, type=RecipeStepTypeEnum.click),
-            RecipeStep(sort=6, type=RecipeStepTypeEnum.find_by_name, value='q'),
-            RecipeStep(sort=7, type=RecipeStepTypeEnum.write_slowly, value='where am i'),
-            RecipeStep(sort=8, type=RecipeStepTypeEnum.submit),
-            RecipeStep(sort=9, type=RecipeStepTypeEnum.pause, value='1'),
-            RecipeStep(sort=11, type=RecipeStepTypeEnum.execute_js, value='document.body.scrollBy(0, 10000);'),
-            RecipeStep(sort=12, type=RecipeStepTypeEnum.find_by_css, value='#fbar .fbar'),
-            RecipeStep(sort=13, type=RecipeStepTypeEnum.get_texts),
-            RecipeStep(sort=21, type=RecipeStepTypeEnum.navigate, value='https://tools.keycdn.com/geo'),
-            RecipeStep(sort=22, type=RecipeStepTypeEnum.find_by_tag, value='dl'),
-            RecipeStep(sort=23, type=RecipeStepTypeEnum.get_text)
+            RecipeStep(sort=6, type=RecipeStepTypeEnum.find_by_xpath, value='//button/div[text()="Ich stimme zu"]'),
+            RecipeStep(sort=7, type=RecipeStepTypeEnum.click),
+            RecipeStep(sort=10, type=RecipeStepTypeEnum.find_by_name, value='q'),
+            RecipeStep(sort=11, type=RecipeStepTypeEnum.write_slowly, value='where am i'),
+            RecipeStep(sort=12, type=RecipeStepTypeEnum.submit),
+            RecipeStep(sort=13, type=RecipeStepTypeEnum.pause, value='1'),
+            RecipeStep(sort=14, type=RecipeStepTypeEnum.execute_js,
+                       value='if(document.getElementsByTagName(\'update-location\').length > 0) '
+                             'document.getElementsByTagName(\'update-location\')[0].click();'),
+            RecipeStep(sort=15, type=RecipeStepTypeEnum.pause, value='15'),
+            RecipeStep(sort=16, type=RecipeStepTypeEnum.execute_js, value='document.body.scrollBy(0, 10000);'),
+            RecipeStep(sort=17, type=RecipeStepTypeEnum.find_by_css, value='#fbar .fbar'),
+            RecipeStep(sort=18, type=RecipeStepTypeEnum.get_texts),
+            RecipeStep(sort=20, type=RecipeStepTypeEnum.navigate, value='https://tools.keycdn.com/geo'),
+            RecipeStep(sort=21, type=RecipeStepTypeEnum.find_by_tag, value='dl'),
+            RecipeStep(sort=22, type=RecipeStepTypeEnum.get_text)
         ]
         for step in steps:
             recipe.steps.append(step)
@@ -153,11 +156,6 @@ class TestEmulator(object):
         connect_db.add(user)
         connect_db.add(RecipeOrder(recipe=recipe, instance=instance))
         connect_db.commit()
-
-        assert connect_db.query(Instance).count() == 2
-        assert connect_db.query(Recipe).count() == 2
-        assert connect_db.query(User).count() == 2
-        assert connect_db.query(RecipeStep).count() > steps.__len__()
 
         run = Run(instance=instance, recipe=recipe)
         for i in range(0, steps.__len__()):
